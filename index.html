@@ -6,398 +6,363 @@
     <title>Xiangqi (Chinese Chess)</title>
     <style>
         :root {
-            --board-color: #e8c28d;
-            --river-color: #f5f5f5;
-            --line-color: #000;
-            --palace-color: #ab6b51;
-            --red-piece: #d03438;
-            --black-piece: #252525;
-            --board-width: 90vmin;
-            --board-height: 100vmin;
-            --grid-size: calc(var(--board-width) / 9);
+            --grid-size: 60px;
+            --piece-size: calc(var(--grid-size) * 0.85);
+            --board-width: calc(var(--grid-size) * 9);
+            --board-height: calc(var(--grid-size) * 10);
         }
 
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: Arial, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             background-color: #f0f0f0;
-            height: 100vh;
             margin: 0;
-            padding: 0;
+            padding: 20px;
         }
 
         .game-container {
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            max-width: var(--board-width);
-            margin: 0 auto;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 10px;
-        }
-
-        h1 {
-            margin: 20px 0 10px 0;
-            color: #333;
-        }
-
-        .game-info {
-            margin-bottom: 10px;
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-
-        .board-container {
-            position: relative;
-            width: var(--board-width);
-            height: var(--board-height);
-            background-color: var(--board-color);
-            margin-bottom: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            border-radius: 4px;
+            gap: 20px;
+            align-items: flex-start;
         }
 
         .board {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            position: relative;
+            width: var(--board-width);
+            height: var(--board-height);
+            background-color: #f8d7a3;
+            border: 2px solid #8b4513;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
         }
 
-        /* Grid lines */
-        .horizontal-line, .vertical-line {
-            position: absolute;
-            background-color: var(--line-color);
-        }
-
-        .horizontal-line {
-            height: 2px;
-            width: calc(100% - var(--grid-size) / 4);
-            left: calc(var(--grid-size) / 8);
-        }
-
-        .vertical-line {
-            width: 2px;
-            height: calc(100% - var(--grid-size) / 4);
-            top: calc(var(--grid-size) / 8);
-        }
-
-        /* River */
-        .river {
-            position: absolute;
-            background-color: var(--river-color);
-            width: 100%;
-            height: calc(var(--grid-size) / 2);
-            top: calc(var(--board-height) / 2 - var(--grid-size) / 4);
-        }
-
-        .river-text {
-            position: absolute;
-            font-size: calc(var(--grid-size) / 3);
-            color: var(--line-color);
-            font-weight: bold;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-
-        .river-text.left {
-            left: calc(var(--grid-size) * 2);
-        }
-
-        .river-text.right {
-            right: calc(var(--grid-size) * 2);
-        }
-
-        /* Palaces */
-        .palace {
-            position: absolute;
-            width: calc(var(--grid-size) * 2);
-            height: calc(var(--grid-size) * 2);
-        }
-
-        .palace-diagonal {
-            position: absolute;
-            width: calc(var(--grid-size) * 2);
-            height: 2px;
-            background-color: var(--line-color);
-            top: 50%;
-            left: 0;
-            transform-origin: center;
-        }
-
-        .palace-diagonal.left-to-right {
-            transform: rotate(45deg);
-        }
-
-        .palace-diagonal.right-to-left {
-            transform: rotate(-45deg);
-        }
-
-        .palace.red {
-            left: calc(var(--grid-size) * 3.5);
-            top: calc(var(--board-height) - var(--grid-size) * 2);
-        }
-
-        .palace.black {
-            left: calc(var(--grid-size) * 3.5);
-            top: 0;
-        }
-
-        /* Piece styling */
         .piece {
             position: absolute;
-            width: calc(var(--grid-size) * 0.85);
-            height: calc(var(--grid-size) * 0.85);
+            width: var(--piece-size);
+            height: var(--piece-size);
+            background-color: #fff;
+            border: 2px solid #000;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
             cursor: pointer;
-            z-index: 10;
-            transform: translate(-50%, -50%);
-            transition: all 0.2s ease;
             user-select: none;
-            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
-            font-family: 'Arial', sans-serif;
+            transition: transform 0.2s;
+            z-index: 1;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        .piece.red {
-            background-color: #f8e0e0;
-            color: var(--red-piece);
-            border: 2px solid var(--red-piece);
-        }
-
-        .piece.black {
-            background-color: #e0e0e0;
-            color: var(--black-piece);
-            border: 2px solid var(--black-piece);
+        .piece:hover {
+            transform: scale(1.1);
         }
 
         .piece.selected {
-            box-shadow: 0 0 0 4px rgba(255, 255, 0, 0.6);
+            background-color: #ffeb3b;
+            box-shadow: 0 0 10px rgba(255,235,59,0.5);
         }
 
-        .piece.valid-move {
-            box-shadow: 0 0 0 4px rgba(0, 255, 0, 0.4);
+        .piece.red {
+            color: #d32f2f;
+            border-color: #d32f2f;
+            background-color: #fff2f2;
         }
 
-        .piece-text {
-            font-size: calc(var(--grid-size) * 0.4);
-            font-weight: bold;
+        .piece.black {
+            color: #000;
+            border-color: #000;
+            background-color: #f0f0f0;
+        }
+
+        .horizontal-line {
+            position: absolute;
+            width: 100%;
+            height: 1px;
+            background-color: #000;
+        }
+
+        .vertical-line {
+            position: absolute;
+            width: 1px;
+            height: 100%;
+            background-color: #000;
+        }
+
+        .river {
+            position: absolute;
+            top: 45%;
+            left: 0;
+            width: 100%;
+            height: 10%;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-        }
-        
-        /* Universal piece symbols */
-        .piece[data-type="general"] .piece-text::before {
-            content: '♚';
-            font-size: calc(var(--grid-size) * 0.5);
-        }
-        
-        .piece[data-type="advisor"] .piece-text::before {
-            content: '♝';
-            font-size: calc(var(--grid-size) * 0.5);
-        }
-        
-        .piece[data-type="elephant"] .piece-text::before {
-            content: '🐘';
-            font-size: calc(var(--grid-size) * 0.4);
-        }
-        
-        .piece[data-type="horse"] .piece-text::before {
-            content: '♞';
-            font-size: calc(var(--grid-size) * 0.5);
-        }
-        
-        .piece[data-type="chariot"] .piece-text::before {
-            content: '♜';
-            font-size: calc(var(--grid-size) * 0.5);
-        }
-        
-        .piece[data-type="cannon"] .piece-text::before {
-            content: '⊕';
-            font-size: calc(var(--grid-size) * 0.5);
-        }
-        
-        .piece[data-type="soldier"] .piece-text::before {
-            content: '♟';
-            font-size: calc(var(--grid-size) * 0.5);
+            color: #8b4513;
+            font-size: calc(var(--grid-size) * 0.3);
+            pointer-events: none;
         }
 
-        /* Highlight spots for possible moves */
+        .river-text {
+            padding: 0 10px;
+        }
+
+        .point-mark {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background-color: #000;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
         .move-highlight {
             position: absolute;
             width: calc(var(--grid-size) * 0.3);
             height: calc(var(--grid-size) * 0.3);
+            background-color: rgba(76,175,80,0.5);
             border-radius: 50%;
-            background-color: rgba(0, 255, 0, 0.4);
-            transform: translate(-50%, -50%);
-            z-index: 5;
             cursor: pointer;
+            z-index: 0;
         }
 
-        /* Point marks at soldier starting positions */
-        .point-mark {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            transform: translate(-50%, -50%);
+        .valid-move {
+            box-shadow: 0 0 0 3px rgba(244,67,54,0.7);
         }
 
-        .point-mark::before, .point-mark::after {
-            content: '';
-            position: absolute;
-            background-color: var(--line-color);
-        }
-
-        .point-mark::before {
-            width: 100%;
-            height: 2px;
-            top: 4px;
-            left: 0;
-        }
-
-        .point-mark::after {
-            width: 2px;
-            height: 100%;
-            top: 0;
-            left: 4px;
-        }
-
-        /* Game controls */
         .controls {
             display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 10px;
+            flex-direction: column;
+            gap: 10px;
         }
 
-        .controls button {
+        button {
             padding: 10px 20px;
-            font-size: 1rem;
+            font-size: 16px;
             cursor: pointer;
-            background-color: #4a90e2;
+            background-color: #4caf50;
             color: white;
             border: none;
             border-radius: 4px;
-            transition: background-color 0.3s;
+            transition: background-color 0.2s;
         }
 
-        .controls button:hover {
-            background-color: #3a7bc8;
-        }
-        
-        .controls button.active {
+        button:hover {
             background-color: #45a049;
         }
 
-        /* Responsive design */
-        @media (max-width: 768px) {
-            :root {
-                --board-width: 95vw;
-                --board-height: 105vw;
-            }
+        button.active {
+            background-color: #2196f3;
+        }
 
-            .piece-text {
-                font-size: calc(var(--grid-size) * 0.4);
-            }
+        .game-info {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Instructions Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+        }
+
+        .modal-content {
+            background-color: #f8f8f8;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        .piece-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .piece-info:last-child {
+            border-bottom: none;
+        }
+
+        .piece-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #fff;
+            border: 2px solid #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 24px;
+        }
+
+        .piece-description {
+            flex: 1;
+        }
+
+        .piece-description h3 {
+            margin-top: 0;
+            margin-bottom: 8px;
+        }
+
+        .piece-description p {
+            margin: 0;
+            line-height: 1.4;
         }
     </style>
 </head>
 <body>
+    <h1>Xiangqi (Chinese Chess)</h1>
     <div class="game-container">
-        <div class="header">
-            <h1>Xiangqi (Chinese Chess)</h1>
-        <div style="font-size: 0.9rem; margin-bottom: 15px; color: #666; max-width: 600px; text-align: center;">
-            <p><strong>Pieces:</strong> 
-            ♚ General (moves one space orthogonally, stays in palace) | 
-            ♝ Advisor (moves one space diagonally, stays in palace) | 
-            🐘 Elephant (moves exactly two spaces diagonally, doesn't cross river) | 
-            ♞ Horse (moves one orthogonally then one diagonally) | 
-            ♜ Chariot (moves any distance orthogonally) | 
-            ⊕ Cannon (moves like chariot, captures by jumping) | 
-            ♟ Soldier (moves forward, also sideways after crossing river)</p>
-        </div>
-        </div>
-        <div class="game-info" id="game-info">Red's Turn</div>
-        <div class="board-container">
-            <div class="board" id="board">
-                <!-- River -->
-                <div class="river">
-                    <div class="river-text left">楚河</div>
-                    <div class="river-text right">漢界</div>
-                </div>
-                <!-- Grid will be generated by JavaScript -->
-            </div>
-        </div>
+        <div class="board" id="board"></div>
         <div class="controls">
-            <button id="new-game">New Game</button>
-            <button id="undo-move">Undo Move</button>
-            <button id="ai-toggle">AI Opponent: OFF</button>
+            <button id="newGame">New Game</button>
+            <button id="undoMove">Undo Move</button>
+            <button id="aiToggle">AI Opponent: OFF</button>
+            <button id="instructionsBtn">Instructions</button>
+        </div>
+    </div>
+    <div class="game-info" id="gameInfo">Red's Turn</div>
+
+    <!-- Instructions Modal -->
+    <div id="instructionsModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Xiangqi (Chinese Chess) Instructions</h2>
+            
+            <h3>Basic Rules</h3>
+            <p>Xiangqi is a two-player strategy board game played on a 9×10 grid with pieces placed on the intersections. The objective is to capture the opponent's General (similar to checkmate in Western chess).</p>
+            <p>Red moves first, followed by Black, with players alternating turns. A piece is captured when an opponent's piece moves onto its position.</p>
+            
+            <h3>Pieces and Their Movements</h3>
+            
+            <div class="piece-info">
+                <div class="piece-icon">♚</div>
+                <div class="piece-description">
+                    <h3>General (King)</h3>
+                    <p>Moves one point horizontally or vertically, but cannot leave the palace (3×3 grid). Generals cannot face each other directly with no pieces in between (the "flying general" rule).</p>
+                </div>
+            </div>
+            
+            <div class="piece-info">
+                <div class="piece-icon">♝</div>
+                <div class="piece-description">
+                    <h3>Advisor (Minister)</h3>
+                    <p>Moves one point diagonally and must stay within the palace.</p>
+                </div>
+            </div>
+            
+            <div class="piece-info">
+                <div class="piece-icon">♘</div>
+                <div class="piece-description">
+                    <h3>Elephant</h3>
+                    <p>Moves exactly two points diagonally. Cannot jump over pieces at the intervening point. Cannot cross the river.</p>
+                </div>
+            </div>
+            
+            <div class="piece-info">
+                <div class="piece-icon">♞</div>
+                <div class="piece-description">
+                    <h3>Horse</h3>
+                    <p>Moves one point horizontally or vertically, then one point diagonally outward (similar to a Knight in chess). Cannot jump over pieces.</p>
+                </div>
+            </div>
+            
+            <div class="piece-info">
+                <div class="piece-icon">♜</div>
+                <div class="piece-description">
+                    <h3>Chariot (Rook)</h3>
+                    <p>Moves any distance horizontally or vertically, but cannot jump over pieces.</p>
+                </div>
+            </div>
+            
+            <div class="piece-info">
+                <div class="piece-icon">♛</div>
+                <div class="piece-description">
+                    <h3>Cannon</h3>
+                    <p>Moves like the Chariot, but must jump over exactly one piece (of either color) to capture. For non-capturing moves, it moves like a Chariot without jumping.</p>
+                </div>
+            </div>
+            
+            <div class="piece-info">
+                <div class="piece-icon">♟</div>
+                <div class="piece-description">
+                    <h3>Soldier (Pawn)</h3>
+                    <p>Moves one point forward. After crossing the river, it can also move one point horizontally. Cannot move backward.</p>
+                </div>
+            </div>
+            
+            <h3>Special Rules</h3>
+            <p><strong>Perpetual Check:</strong> Continuously putting the opponent's General in check is not allowed.</p>
+            <p><strong>Perpetual Chase:</strong> Continuously chasing a piece in a repeating pattern is not allowed.</p>
+            <p><strong>Stalemate:</strong> A player with no legal moves results in a loss (unlike western chess where it's a draw).</p>
         </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Game constants
-            const BOARD_WIDTH = 9;
-            const BOARD_HEIGHT = 10;
-            const RED = 'red';
-            const BLACK = 'black';
+        // Game constants
+        const BOARD_WIDTH = 9;
+        const BOARD_HEIGHT = 10;
+        const RED = 'red';
+        const BLACK = 'black';
 
-            // Game state
-            let selectedPiece = null;
-            let currentPlayer = RED;
-            let gameOver = false;
-            let moveHistory = [];
-            let aiEnabled = false;
-            let aiThinking = false;
-            
-            // Piece labels for display in game info
-            const pieceLabels = {
-                [RED]: {
-                    'general': 'General',
-                    'advisor': 'Advisor',
-                    'elephant': 'Elephant',
-                    'horse': 'Horse',
-                    'chariot': 'Chariot',
-                    'cannon': 'Cannon',
-                    'soldier': 'Soldier'
-                },
-                [BLACK]: {
-                    'general': 'General',
-                    'advisor': 'Advisor',
-                    'elephant': 'Elephant',
-                    'horse': 'Horse',
-                    'chariot': 'Chariot',
-                    'cannon': 'Cannon',
-                    'soldier': 'Soldier'
-                }
-            };
+        // DOM elements
+        const boardElement = document.getElementById('board');
+        const newGameButton = document.getElementById('newGame');
+        const undoMoveButton = document.getElementById('undoMove');
+        const aiToggleButton = document.getElementById('aiToggle');
+        const instructionsButton = document.getElementById('instructionsBtn');
+        const instructionsModal = document.getElementById('instructionsModal');
+        const closeModalButton = document.querySelector('.close');
+        const gameInfoElement = document.getElementById('gameInfo');
 
-            // DOM elements
-            const boardElement = document.getElementById('board');
-            const gameInfoElement = document.getElementById('game-info');
-            const newGameButton = document.getElementById('new-game');
-            const undoMoveButton = document.getElementById('undo-move');
-            const aiToggleButton = document.getElementById('ai-toggle');
+        // Game state
+        let selectedPiece = null;
+        let currentPlayer = RED;
+        let gameOver = false;
+        let moveHistory = [];
+        let aiEnabled = false;
+        let aiThinking = false;
 
-            // Initialize game
-            function initGame() {
+        // Initialize game
+        function initGame() {
+            try {
                 // Clear the board
                 boardElement.innerHTML = '';
                 
                 // Add river
-                const river = document.createElement('div');
-                river.className = 'river';
+                const riverRect = document.createElement('div');
+                riverRect.className = 'river';
+                riverRect.style.top = '40%';
+                riverRect.style.height = '10%';
+                riverRect.style.backgroundColor = '#f8d7a3'; // Match board color
                 
                 const leftText = document.createElement('div');
                 leftText.className = 'river-text left';
@@ -407,12 +372,13 @@
                 rightText.className = 'river-text right';
                 rightText.textContent = '漢界';
                 
-                river.appendChild(leftText);
-                river.appendChild(rightText);
-                boardElement.appendChild(river);
+                riverRect.appendChild(leftText);
+                riverRect.appendChild(rightText);
+                boardElement.appendChild(riverRect);
                 
                 // Add grid lines
                 for (let i = 0; i < BOARD_HEIGHT; i++) {
+                    // Don't skip any horizontal lines - include rows 4 and 5 for the river
                     const line = document.createElement('div');
                     line.className = 'horizontal-line';
                     line.style.top = `${(i * 10)}%`;
@@ -420,38 +386,112 @@
                 }
                 
                 for (let i = 0; i < BOARD_WIDTH; i++) {
-                    const line = document.createElement('div');
-                    line.className = 'vertical-line';
-                    line.style.left = `${(i * (100 / BOARD_WIDTH))}%`;
-                    boardElement.appendChild(line);
+                    // Make vertical lines stop at the river
+                    if (i < BOARD_WIDTH) {
+                        // For lines that cross the river, create two segments
+                        const upperLine = document.createElement('div');
+                        upperLine.className = 'vertical-line';
+                        upperLine.style.left = `${(i * (100 / BOARD_WIDTH))}%`;
+                        upperLine.style.height = '40%'; // Stop at river top
+                        
+                        const lowerLine = document.createElement('div');
+                        lowerLine.className = 'vertical-line';
+                        lowerLine.style.left = `${(i * (100 / BOARD_WIDTH))}%`;
+                        lowerLine.style.top = '50%';
+                        lowerLine.style.height = '50%'; // Start from river bottom
+                        
+                        boardElement.appendChild(upperLine);
+                        boardElement.appendChild(lowerLine);
+                    }
                 }
                 
-                // Add palaces
-                const redPalace = document.createElement('div');
-                redPalace.className = 'palace red';
+                // Add palaces using SVG for better precision
+                const palaceSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                palaceSvg.setAttribute("width", "100%");
+                palaceSvg.setAttribute("height", "100%");
+                palaceSvg.style.position = "absolute";
+                palaceSvg.style.top = "0";
+                palaceSvg.style.left = "0";
+                palaceSvg.style.pointerEvents = "none";
+                palaceSvg.style.zIndex = "0"; // Place behind pieces
                 
-                const redDiagonal1 = document.createElement('div');
-                redDiagonal1.className = 'palace-diagonal left-to-right';
+                // Calculate palace coordinates
+                const gridWidth = 100 / BOARD_WIDTH;
                 
-                const redDiagonal2 = document.createElement('div');
-                redDiagonal2.className = 'palace-diagonal right-to-left';
+                // Top palace (black) - 3x3 grid in columns 3-5 and rows 0-2
+                const blackX1 = 3 * gridWidth; // Left x (column 3)
+                const blackX2 = 5 * gridWidth; // Right x (column 5)
+                const blackY1 = 0; // Top y (row 0)
+                const blackY2 = 2 * 10; // Bottom y (row 2)
                 
-                redPalace.appendChild(redDiagonal1);
-                redPalace.appendChild(redDiagonal2);
-                boardElement.appendChild(redPalace);
+                // Bottom palace (red) - 3x3 grid in columns 3-5 and rows 7-9
+                const redX1 = 3 * gridWidth; // Left x (column 3)
+                const redX2 = 5 * gridWidth; // Right x (column 5)
+                const redY1 = 7 * 10; // Top y (row 7)
+                const redY2 = 9 * 10; // Bottom y (row 9)
                 
-                const blackPalace = document.createElement('div');
-                blackPalace.className = 'palace black';
+                // Create rectangle backgrounds for palaces with distinct color
+                const blackPalaceRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                blackPalaceRect.setAttribute("x", `${blackX1}%`);
+                blackPalaceRect.setAttribute("y", `${blackY1}%`);
+                blackPalaceRect.setAttribute("width", `${blackX2 - blackX1 + gridWidth}%`);
+                blackPalaceRect.setAttribute("height", `${blackY2 - blackY1 + 10}%`);
+                blackPalaceRect.setAttribute("fill", "transparent"); // Remove color
+                blackPalaceRect.setAttribute("stroke", "none");
                 
-                const blackDiagonal1 = document.createElement('div');
-                blackDiagonal1.className = 'palace-diagonal left-to-right';
+                const redPalaceRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                redPalaceRect.setAttribute("x", `${redX1}%`);
+                redPalaceRect.setAttribute("y", `${redY1}%`);
+                redPalaceRect.setAttribute("width", `${redX2 - redX1 + gridWidth}%`);
+                redPalaceRect.setAttribute("height", `${redY2 - redY1 + 10}%`);
+                redPalaceRect.setAttribute("fill", "transparent"); // Remove color
+                redPalaceRect.setAttribute("stroke", "none");
                 
-                const blackDiagonal2 = document.createElement('div');
-                blackDiagonal2.className = 'palace-diagonal right-to-left';
+                // Create diagonal lines for the palaces as described in Wikipedia - connecting opposite corners
+                // Black palace diagonal
+                const blackDiag1 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                blackDiag1.setAttribute("x1", `${blackX1}%`);
+                blackDiag1.setAttribute("y1", `${blackY1}%`);
+                blackDiag1.setAttribute("x2", `${blackX2 + gridWidth}%`);
+                blackDiag1.setAttribute("y2", `${blackY2 + 10}%`);
+                blackDiag1.setAttribute("stroke", "black");
+                blackDiag1.setAttribute("stroke-width", "1.5");
                 
-                blackPalace.appendChild(blackDiagonal1);
-                blackPalace.appendChild(blackDiagonal2);
-                boardElement.appendChild(blackPalace);
+                const blackDiag2 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                blackDiag2.setAttribute("x1", `${blackX2 + gridWidth}%`);
+                blackDiag2.setAttribute("y1", `${blackY1}%`);
+                blackDiag2.setAttribute("x2", `${blackX1}%`);
+                blackDiag2.setAttribute("y2", `${blackY2 + 10}%`);
+                blackDiag2.setAttribute("stroke", "black");
+                blackDiag2.setAttribute("stroke-width", "1.5");
+                
+                // Red palace diagonal
+                const redDiag1 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                redDiag1.setAttribute("x1", `${redX1}%`);
+                redDiag1.setAttribute("y1", `${redY1}%`);
+                redDiag1.setAttribute("x2", `${redX2 + gridWidth}%`);
+                redDiag1.setAttribute("y2", `${redY2 + 10}%`);
+                redDiag1.setAttribute("stroke", "black");
+                redDiag1.setAttribute("stroke-width", "1.5");
+                
+                const redDiag2 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                redDiag2.setAttribute("x1", `${redX2 + gridWidth}%`);
+                redDiag2.setAttribute("y1", `${redY1}%`);
+                redDiag2.setAttribute("x2", `${redX1}%`);
+                redDiag2.setAttribute("y2", `${redY2 + 10}%`);
+                redDiag2.setAttribute("stroke", "black");
+                redDiag2.setAttribute("stroke-width", "1.5");
+                
+                // Add rectangles and lines to the SVG
+                palaceSvg.appendChild(blackPalaceRect);
+                palaceSvg.appendChild(redPalaceRect);
+                palaceSvg.appendChild(blackDiag1);
+                palaceSvg.appendChild(blackDiag2);
+                palaceSvg.appendChild(redDiag1);
+                palaceSvg.appendChild(redDiag2);
+                
+                // Add the SVG to the board
+                boardElement.appendChild(palaceSvg);
                 
                 // Add soldier and cannon position marks
                 const soldierPositions = [
@@ -467,8 +507,16 @@
                 [...soldierPositions, ...cannonPositions].forEach(pos => {
                     const mark = document.createElement('div');
                     mark.className = 'point-mark';
-                    mark.style.left = `${pos.x * (100 / BOARD_WIDTH) + (100 / BOARD_WIDTH / 2)}%`;
-                    mark.style.top = `${pos.y * 10 + 5}%`;
+                    
+                    // Center on grid intersection
+                    const gridSize = 100 / BOARD_WIDTH;
+                    const markLeft = pos.x * gridSize + gridSize / 2;
+                    const markTop = pos.y * 10 + 5;
+                    
+                    mark.style.left = `${markLeft}%`;
+                    mark.style.top = `${markTop}%`;
+                    mark.style.transform = 'translate(-50%, -50%)';
+                    
                     boardElement.appendChild(mark);
                 });
                 
@@ -476,105 +524,143 @@
                 setupInitialPieces();
                 
                 // Reset game state
-                selectedPiece = null;
-                currentPlayer = RED;
-                gameOver = false;
-                moveHistory = [];
-                updateGameInfo();
+                resetGameState();
                 
-                // Reset AI toggle button to OFF state
-                aiEnabled = false;
-                aiToggleButton.textContent = 'AI Opponent: OFF';
-                aiToggleButton.classList.remove('active');
+            } catch (error) {
+                console.error("Error initializing game:", error);
+                alert("Error initializing game. Please refresh the page.");
             }
+        }
 
-            // Setup initial piece positions
-            function setupInitialPieces() {
-                // Add pieces
-                const initialPieces = [
-                    // Red pieces
-                    {type: 'chariot', color: RED, x: 0, y: 9},
-                    {type: 'horse', color: RED, x: 1, y: 9},
-                    {type: 'elephant', color: RED, x: 2, y: 9},
-                    {type: 'advisor', color: RED, x: 3, y: 9},
-                    {type: 'general', color: RED, x: 4, y: 9},
-                    {type: 'advisor', color: RED, x: 5, y: 9},
-                    {type: 'elephant', color: RED, x: 6, y: 9},
-                    {type: 'horse', color: RED, x: 7, y: 9},
-                    {type: 'chariot', color: RED, x: 8, y: 9},
-                    {type: 'cannon', color: RED, x: 1, y: 7},
-                    {type: 'cannon', color: RED, x: 7, y: 7},
-                    {type: 'soldier', color: RED, x: 0, y: 6},
-                    {type: 'soldier', color: RED, x: 2, y: 6},
-                    {type: 'soldier', color: RED, x: 4, y: 6},
-                    {type: 'soldier', color: RED, x: 6, y: 6},
-                    {type: 'soldier', color: RED, x: 8, y: 6},
-                    
-                    // Black pieces
-                    {type: 'chariot', color: BLACK, x: 0, y: 0},
-                    {type: 'horse', color: BLACK, x: 1, y: 0},
-                    {type: 'elephant', color: BLACK, x: 2, y: 0},
-                    {type: 'advisor', color: BLACK, x: 3, y: 0},
-                    {type: 'general', color: BLACK, x: 4, y: 0},
-                    {type: 'advisor', color: BLACK, x: 5, y: 0},
-                    {type: 'elephant', color: BLACK, x: 6, y: 0},
-                    {type: 'horse', color: BLACK, x: 7, y: 0},
-                    {type: 'chariot', color: BLACK, x: 8, y: 0},
-                    {type: 'cannon', color: BLACK, x: 1, y: 2},
-                    {type: 'cannon', color: BLACK, x: 7, y: 2},
-                    {type: 'soldier', color: BLACK, x: 0, y: 3},
-                    {type: 'soldier', color: BLACK, x: 2, y: 3},
-                    {type: 'soldier', color: BLACK, x: 4, y: 3},
-                    {type: 'soldier', color: BLACK, x: 6, y: 3},
-                    {type: 'soldier', color: BLACK, x: 8, y: 3}
-                ];
+        // Setup initial piece positions
+        function setupInitialPieces() {
+            // Add pieces
+            const initialPieces = [
+                // Red pieces
+                {type: 'chariot', color: RED, x: 0, y: 9},
+                {type: 'horse', color: RED, x: 1, y: 9},
+                {type: 'elephant', color: RED, x: 2, y: 9},
+                {type: 'advisor', color: RED, x: 3, y: 9},
+                {type: 'general', color: RED, x: 4, y: 9},
+                {type: 'advisor', color: RED, x: 5, y: 9},
+                {type: 'elephant', color: RED, x: 6, y: 9},
+                {type: 'horse', color: RED, x: 7, y: 9},
+                {type: 'chariot', color: RED, x: 8, y: 9},
+                {type: 'cannon', color: RED, x: 1, y: 7},
+                {type: 'cannon', color: RED, x: 7, y: 7},
+                {type: 'soldier', color: RED, x: 0, y: 6},
+                {type: 'soldier', color: RED, x: 2, y: 6},
+                {type: 'soldier', color: RED, x: 4, y: 6},
+                {type: 'soldier', color: RED, x: 6, y: 6},
+                {type: 'soldier', color: RED, x: 8, y: 6},
                 
-                initialPieces.forEach(piece => {
-                    createPieceElement(piece);
-                });
-            }
+                // Black pieces
+                {type: 'chariot', color: BLACK, x: 0, y: 0},
+                {type: 'horse', color: BLACK, x: 1, y: 0},
+                {type: 'elephant', color: BLACK, x: 2, y: 0},
+                {type: 'advisor', color: BLACK, x: 3, y: 0},
+                {type: 'general', color: BLACK, x: 4, y: 0},
+                {type: 'advisor', color: BLACK, x: 5, y: 0},
+                {type: 'elephant', color: BLACK, x: 6, y: 0},
+                {type: 'horse', color: BLACK, x: 7, y: 0},
+                {type: 'chariot', color: BLACK, x: 8, y: 0},
+                {type: 'cannon', color: BLACK, x: 1, y: 2},
+                {type: 'cannon', color: BLACK, x: 7, y: 2},
+                {type: 'soldier', color: BLACK, x: 0, y: 3},
+                {type: 'soldier', color: BLACK, x: 2, y: 3},
+                {type: 'soldier', color: BLACK, x: 4, y: 3},
+                {type: 'soldier', color: BLACK, x: 6, y: 3},
+                {type: 'soldier', color: BLACK, x: 8, y: 3}
+            ];
+            
+            initialPieces.forEach(piece => {
+                createPieceElement(piece);
+            });
+        }
 
-            // Create a piece DOM element
-            function createPieceElement(piece) {
-                const pieceElement = document.createElement('div');
-                pieceElement.className = `piece ${piece.color}`;
-                pieceElement.dataset.type = piece.type;
-                pieceElement.dataset.color = piece.color;
-                pieceElement.dataset.x = piece.x;
-                pieceElement.dataset.y = piece.y;
-                
-                const pieceTextElement = document.createElement('div');
-                pieceTextElement.className = 'piece-text';
-                
-                pieceElement.appendChild(pieceTextElement);
-                
-                // Position the piece
-                updatePiecePosition(pieceElement);
-                
-                // Add event listener
-                pieceElement.addEventListener('click', handlePieceClick);
-                
-                boardElement.appendChild(pieceElement);
-                return pieceElement;
-            }
+        // Create a piece DOM element
+        function createPieceElement(piece) {
+            const pieceElement = document.createElement('div');
+            pieceElement.className = `piece ${piece.color}`;
+            pieceElement.dataset.type = piece.type;
+            pieceElement.dataset.color = piece.color;
+            pieceElement.dataset.x = piece.x;
+            pieceElement.dataset.y = piece.y;
+            
+            // Create SVG element
+            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.setAttribute("viewBox", "0 0 100 100");
+            svg.setAttribute("width", "100%");
+            svg.setAttribute("height", "100%");
+            
+            // Create text element
+            const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            text.setAttribute("x", "50");
+            text.setAttribute("y", "65");
+            text.setAttribute("text-anchor", "middle");
+            text.setAttribute("font-size", "60");
+            
+            // Add appropriate symbol based on piece type
+            const symbols = {
+                'general': '♚',  // King
+                'advisor': '♝',  // Bishop
+                'elephant': '♘', // Knight (modified)
+                'horse': '♞',    // Knight
+                'chariot': '♜',  // Rook
+                'cannon': '♛',   // Queen (representing cannon)
+                'soldier': '♟'   // Pawn
+            };
+            
+            text.textContent = symbols[piece.type];
+            svg.appendChild(text);
+            pieceElement.appendChild(svg);
+            
+            // Position the piece
+            updatePiecePosition(pieceElement);
+            
+            // Add event listener
+            pieceElement.addEventListener('click', handlePieceClick);
+            
+            boardElement.appendChild(pieceElement);
+            return pieceElement;
+        }
 
-            // Position a piece on the board
-            function updatePiecePosition(pieceElement) {
-                const x = parseInt(pieceElement.dataset.x);
-                const y = parseInt(pieceElement.dataset.y);
-                
-                pieceElement.style.left = `${x * (100 / BOARD_WIDTH) + (100 / BOARD_WIDTH / 2)}%`;
-                pieceElement.style.top = `${y * 10 + 5}%`;
-            }
+        // Position a piece on the board
+        function updatePiecePosition(pieceElement) {
+            const x = parseInt(pieceElement.dataset.x);
+            const y = parseInt(pieceElement.dataset.y);
+            
+            // Center the piece on the grid intersection
+            const gridSize = 100 / BOARD_WIDTH;
+            const pieceLeft = x * gridSize + gridSize / 2;
+            const pieceTop = y * 10 + 5;
+            
+            pieceElement.style.left = `${pieceLeft}%`;
+            pieceElement.style.top = `${pieceTop}%`;
+            
+            // Set transform to translate from center instead of top-left corner
+            pieceElement.style.transform = 'translate(-50%, -50%)';
+        }
 
-            // Handle piece click event
-            function handlePieceClick(event) {
-                if (gameOver) return;
+        // Handle piece click event
+        function handlePieceClick(event) {
+            try {
+                if (gameOver || aiThinking) return;
                 
                 const pieceElement = event.currentTarget;
+                if (!pieceElement || !pieceElement.dataset) {
+                    console.error("Invalid piece element in handlePieceClick");
+                    return;
+                }
+                
                 const pieceColor = pieceElement.dataset.color;
                 const x = parseInt(pieceElement.dataset.x);
                 const y = parseInt(pieceElement.dataset.y);
+                
+                if (!pieceColor || isNaN(x) || isNaN(y)) {
+                    console.error("Invalid piece data in handlePieceClick");
+                    return;
+                }
                 
                 // If clicking on a piece of current player's color
                 if (pieceColor === currentPlayer) {
@@ -595,13 +681,24 @@
                     // Move the selected piece to the new position
                     movePiece(selectedPiece, x, y);
                 }
+            } catch (error) {
+                console.error("Error handling piece click:", error);
+                // Reset selection state
+                deselectPiece();
             }
+        }
 
-            // Select a piece
-            function selectPiece(pieceElement) {
+        // Select a piece
+        function selectPiece(pieceElement) {
+            try {
                 // Deselect previously selected piece
                 if (selectedPiece) {
                     deselectPiece();
+                }
+                
+                if (!pieceElement || !pieceElement.dataset) {
+                    console.error("Invalid piece element in selectPiece");
+                    return;
                 }
                 
                 // Mark new piece as selected
@@ -613,280 +710,349 @@
                 const y = parseInt(pieceElement.dataset.y);
                 const pieceType = pieceElement.dataset.type;
                 
+                if (isNaN(x) || isNaN(y) || !pieceType) {
+                    console.error("Invalid piece data in selectPiece");
+                    deselectPiece();
+                    return;
+                }
+                
                 showPossibleMoves(x, y, pieceType);
+            } catch (error) {
+                console.error("Error selecting piece:", error);
+                // Reset selection
+                deselectPiece();
             }
+        }
 
-            // Deselect the current piece
-            function deselectPiece() {
-                if (selectedPiece) {
-                    selectedPiece.classList.remove('selected');
-                    
-                    // Remove all move highlights
-                    document.querySelectorAll('.move-highlight').forEach(highlight => {
-                        highlight.remove();
-                    });
-                    
-                    // Remove valid-move class from pieces
-                    document.querySelectorAll('.valid-move').forEach(piece => {
-                        piece.classList.remove('valid-move');
-                    });
-                    
-                    selectedPiece = null;
-                }
-            }
-
-            // Show possible moves for a piece
-            function showPossibleMoves(x, y, pieceType) {
-                const possibleMoves = [];
+        // Deselect the current piece
+        function deselectPiece() {
+            if (selectedPiece) {
+                selectedPiece.classList.remove('selected');
                 
-                // Get all possible moves based on piece type
-                switch (pieceType) {
-                    case 'general':
-                        possibleMoves.push(...getGeneralMoves(x, y));
-                        break;
-                    case 'advisor':
-                        possibleMoves.push(...getAdvisorMoves(x, y));
-                        break;
-                    case 'elephant':
-                        possibleMoves.push(...getElephantMoves(x, y));
-                        break;
-                    case 'horse':
-                        possibleMoves.push(...getHorseMoves(x, y));
-                        break;
-                    case 'chariot':
-                        possibleMoves.push(...getChariotMoves(x, y));
-                        break;
-                    case 'cannon':
-                        possibleMoves.push(...getCannonMoves(x, y));
-                        break;
-                    case 'soldier':
-                        possibleMoves.push(...getSoldierMoves(x, y));
-                        break;
-                }
-                
-                // Display the possible moves
-                possibleMoves.forEach(move => {
-                    // Check if there's an opponent's piece at this position
-                    const targetPiece = getPieceAtPosition(move.x, move.y);
-                    
-                    if (targetPiece) {
-                        targetPiece.classList.add('valid-move');
-                    } else {
-                        // Create a move highlight element
-                        const highlight = document.createElement('div');
-                        highlight.className = 'move-highlight';
-                        highlight.style.left = `${move.x * (100 / BOARD_WIDTH) + (100 / BOARD_WIDTH / 2)}%`;
-                        highlight.style.top = `${move.y * 10 + 5}%`;
-                        
-                        // Add click event to move the piece
-                        highlight.addEventListener('click', () => {
-                            if (selectedPiece) {
-                                movePiece(selectedPiece, move.x, move.y);
-                            }
-                        });
-                        
-                        boardElement.appendChild(highlight);
-                    }
-                });
-            }
-
-            // Get possible moves for General/King
-            function getGeneralMoves(x, y) {
-                const color = currentPlayer;
-                const moves = [];
-                const directions = [
-                    {dx: 0, dy: 1}, {dx: 1, dy: 0}, 
-                    {dx: 0, dy: -1}, {dx: -1, dy: 0}
-                ];
-                
-                directions.forEach(dir => {
-                    const newX = x + dir.dx;
-                    const newY = y + dir.dy;
-                    
-                    // Check if the move is within the palace
-                    if (isWithinPalace(newX, newY, color) && 
-                        (getPieceAtPosition(newX, newY)?.dataset.color !== color || !getPieceAtPosition(newX, newY))) {
-                        moves.push({x: newX, y: newY});
-                    }
+                // Remove all move highlights
+                document.querySelectorAll('.move-highlight').forEach(highlight => {
+                    highlight.remove();
                 });
                 
-                // Check for flying general move
-                if (canFlyGeneral(x, y)) {
-                    const enemyGeneral = findEnemyGeneral();
-                    if (enemyGeneral) {
-                        moves.push({
-                            x: parseInt(enemyGeneral.dataset.x),
-                            y: parseInt(enemyGeneral.dataset.y)
-                        });
-                    }
-                }
+                // Remove valid-move class from pieces
+                document.querySelectorAll('.valid-move').forEach(piece => {
+                    piece.classList.remove('valid-move');
+                });
                 
-                return moves;
+                selectedPiece = null;
             }
+        }
 
-            // Check if a position is within the palace
-            function isWithinPalace(x, y, color) {
-                // Red palace
-                if (color === RED) {
-                    return x >= 3 && x <= 5 && y >= 7 && y <= 9;
-                }
-                // Black palace
-                else {
-                    return x >= 3 && x <= 5 && y >= 0 && y <= 2;
-                }
+        // Show possible moves for a piece
+        function showPossibleMoves(x, y, pieceType) {
+            const possibleMoves = [];
+            
+            // Get all possible moves based on piece type
+            switch (pieceType) {
+                case 'general':
+                    possibleMoves.push(...getGeneralMoves(x, y));
+                    break;
+                case 'advisor':
+                    possibleMoves.push(...getAdvisorMoves(x, y));
+                    break;
+                case 'elephant':
+                    possibleMoves.push(...getElephantMoves(x, y));
+                    break;
+                case 'horse':
+                    possibleMoves.push(...getHorseMoves(x, y));
+                    break;
+                case 'chariot':
+                    possibleMoves.push(...getChariotMoves(x, y));
+                    break;
+                case 'cannon':
+                    possibleMoves.push(...getCannonMoves(x, y));
+                    break;
+                case 'soldier':
+                    possibleMoves.push(...getSoldierMoves(x, y));
+                    break;
             }
+            
+            // Display the possible moves
+            possibleMoves.forEach(move => {
+                // Check if there's an opponent's piece at this position
+                const targetPiece = getPieceAtPosition(move.x, move.y);
+                
+                if (targetPiece) {
+                    targetPiece.classList.add('valid-move');
+                } else {
+                    // Create a move highlight element
+                    const highlight = document.createElement('div');
+                    highlight.className = 'move-highlight';
+                    
+                    // Center the highlight on the grid intersection
+                    const gridSize = 100 / BOARD_WIDTH;
+                    const highlightLeft = move.x * gridSize + gridSize / 2;
+                    const highlightTop = move.y * 10 + 5;
+                    
+                    highlight.style.left = `${highlightLeft}%`;
+                    highlight.style.top = `${highlightTop}%`;
+                    highlight.style.transform = 'translate(-50%, -50%)';
+                    
+                    // Add click event to move the piece
+                    highlight.addEventListener('click', () => {
+                        if (selectedPiece) {
+                            movePiece(selectedPiece, move.x, move.y);
+                        }
+                    });
+                    
+                    boardElement.appendChild(highlight);
+                }
+            });
+        }
 
-            // Check if the general can fly (move along a file to capture enemy general)
-            function canFlyGeneral(x, y) {
+        // Get possible moves for General/King
+        function getGeneralMoves(x, y) {
+            const color = currentPlayer;
+            const moves = [];
+            const directions = [
+                {dx: 0, dy: 1}, {dx: 1, dy: 0}, 
+                {dx: 0, dy: -1}, {dx: -1, dy: 0}
+            ];
+            
+            directions.forEach(dir => {
+                const newX = x + dir.dx;
+                const newY = y + dir.dy;
+                
+                // Check if the move is within the palace
+                if (isWithinPalace(newX, newY, color) && 
+                    (getPieceAtPosition(newX, newY)?.dataset.color !== color || !getPieceAtPosition(newX, newY))) {
+                    moves.push({x: newX, y: newY});
+                }
+            });
+            
+            // Check for flying general move
+            if (canFlyGeneral(x, y)) {
                 const enemyGeneral = findEnemyGeneral();
-                if (!enemyGeneral) return false;
-                
-                const enemyX = parseInt(enemyGeneral.dataset.x);
-                const enemyY = parseInt(enemyGeneral.dataset.y);
-                
-                // Generals must be on the same file
-                if (x !== enemyX) return false;
-                
-                // Check if there are any pieces between them
-                const minY = Math.min(y, enemyY);
-                const maxY = Math.max(y, enemyY);
-                
-                for (let checkY = minY + 1; checkY < maxY; checkY++) {
-                    if (getPieceAtPosition(x, checkY)) {
-                        return false;
-                    }
-                }
-                
-                return true;
-            }
-
-            // Find the enemy general
-            function findEnemyGeneral() {
-                const enemyColor = currentPlayer === RED ? BLACK : RED;
-                return document.querySelector(`.piece[data-type="general"][data-color="${enemyColor}"]`);
-            }
-
-            // Get possible moves for Advisor/Minister
-            function getAdvisorMoves(x, y) {
-                const color = currentPlayer;
-                const moves = [];
-                const directions = [
-                    {dx: 1, dy: 1}, {dx: 1, dy: -1},
-                    {dx: -1, dy: 1}, {dx: -1, dy: -1}
-                ];
-                
-                directions.forEach(dir => {
-                    const newX = x + dir.dx;
-                    const newY = y + dir.dy;
-                    
-                    // Check if the move is within the palace and not occupied by own piece
-                    if (isWithinPalace(newX, newY, color) && 
-                        (getPieceAtPosition(newX, newY)?.dataset.color !== color || !getPieceAtPosition(newX, newY))) {
-                        moves.push({x: newX, y: newY});
-                    }
-                });
-                
-                return moves;
-            }
-
-            // Get possible moves for Elephant/Minister
-            function getElephantMoves(x, y) {
-                const color = currentPlayer;
-                const moves = [];
-                const directions = [
-                    {dx: 2, dy: 2}, {dx: 2, dy: -2},
-                    {dx: -2, dy: 2}, {dx: -2, dy: -2}
-                ];
-                
-                directions.forEach(dir => {
-                    const newX = x + dir.dx;
-                    const newY = y + dir.dy;
-                    const midX = x + dir.dx / 2;
-                    const midY = y + dir.dy / 2;
-                    
-                    // Check if the move is within bounds, not crossing river, and not blocked
-                    if (isValidPosition(newX, newY) && 
-                        !crossesRiver(newY, color) && 
-                        !getPieceAtPosition(midX, midY) && 
-                        (getPieceAtPosition(newX, newY)?.dataset.color !== color || !getPieceAtPosition(newX, newY))) {
-                        moves.push({x: newX, y: newY});
-                    }
-                });
-                
-                return moves;
-            }
-
-            // Check if a position crosses the river
-            function crossesRiver(y, color) {
-                // Red pieces cannot go above the river (y < 5)
-                if (color === RED) {
-                    return y < 5;
-                }
-                // Black pieces cannot go below the river (y > 4)
-                else {
-                    return y > 4;
+                if (enemyGeneral) {
+                    moves.push({
+                        x: parseInt(enemyGeneral.dataset.x),
+                        y: parseInt(enemyGeneral.dataset.y)
+                    });
                 }
             }
+            
+            return moves;
+        }
 
-            // Get possible moves for Horse/Knight
-            function getHorseMoves(x, y) {
-                const color = currentPlayer;
-                const moves = [];
-                const directions = [
-                    // Up-right, up-left, right-up, right-down, down-right, down-left, left-up, left-down
-                    {dx: 1, dy: -2, blockX: 0, blockY: -1},
-                    {dx: -1, dy: -2, blockX: 0, blockY: -1},
-                    {dx: 2, dy: -1, blockX: 1, blockY: 0},
-                    {dx: 2, dy: 1, blockX: 1, blockY: 0},
-                    {dx: 1, dy: 2, blockX: 0, blockY: 1},
-                    {dx: -1, dy: 2, blockX: 0, blockY: 1},
-                    {dx: -2, dy: -1, blockX: -1, blockY: 0},
-                    {dx: -2, dy: 1, blockX: -1, blockY: 0}
-                ];
-                
-                directions.forEach(dir => {
-                    const newX = x + dir.dx;
-                    const newY = y + dir.dy;
-                    const blockX = x + dir.blockX;
-                    const blockY = y + dir.blockY;
-                    
-                    // Check if the move is within bounds, not blocked, and not occupied by own piece
-                    if (isValidPosition(newX, newY) && 
-                        !getPieceAtPosition(blockX, blockY) && 
-                        (getPieceAtPosition(newX, newY)?.dataset.color !== color || !getPieceAtPosition(newX, newY))) {
-                        moves.push({x: newX, y: newY});
-                    }
-                });
-                
-                return moves;
+        // Check if a position is within the palace
+        function isWithinPalace(x, y, color) {
+            // Red palace
+            if (color === RED) {
+                return x >= 3 && x <= 5 && y >= 7 && y <= 9;
             }
+            // Black palace
+            else {
+                return x >= 3 && x <= 5 && y >= 0 && y <= 2;
+            }
+        }
 
-            // Get possible moves for Chariot/Rook
-            function getChariotMoves(x, y) {
-                const color = currentPlayer;
-                const moves = [];
+        // Check if the general can fly (move along a file to capture enemy general)
+        function canFlyGeneral(x, y) {
+            const enemyGeneral = findEnemyGeneral();
+            if (!enemyGeneral) return false;
+            
+            const enemyX = parseInt(enemyGeneral.dataset.x);
+            const enemyY = parseInt(enemyGeneral.dataset.y);
+            
+            // Generals must be on the same file
+            if (x !== enemyX) return false;
+            
+            // Check if there are any pieces between them
+            const minY = Math.min(y, enemyY);
+            const maxY = Math.max(y, enemyY);
+            
+            for (let checkY = minY + 1; checkY < maxY; checkY++) {
+                if (getPieceAtPosition(x, checkY)) {
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+
+        // Find the enemy general
+        function findEnemyGeneral() {
+            const enemyColor = currentPlayer === RED ? BLACK : RED;
+            return document.querySelector(`.piece[data-type="general"][data-color="${enemyColor}"]`);
+        }
+
+        // Get possible moves for Advisor/Minister
+        function getAdvisorMoves(x, y) {
+            const color = currentPlayer;
+            const moves = [];
+            const directions = [
+                {dx: 1, dy: 1}, {dx: 1, dy: -1},
+                {dx: -1, dy: 1}, {dx: -1, dy: -1}
+            ];
+            
+            directions.forEach(dir => {
+                const newX = x + dir.dx;
+                const newY = y + dir.dy;
                 
-                // Check in all four directions (up, right, down, left)
-                const directions = [
-                    {dx: 0, dy: -1}, // up
-                    {dx: 1, dy: 0},  // right
-                    {dx: 0, dy: 1},  // down
-                    {dx: -1, dy: 0}  // left
-                ];
+                // Check if the move is within the palace and not occupied by own piece
+                if (isWithinPalace(newX, newY, color) && 
+                    (getPieceAtPosition(newX, newY)?.dataset.color !== color || !getPieceAtPosition(newX, newY))) {
+                    moves.push({x: newX, y: newY});
+                }
+            });
+            
+            return moves;
+        }
+
+        // Get possible moves for Elephant/Minister
+        function getElephantMoves(x, y) {
+            const color = currentPlayer;
+            const moves = [];
+            const directions = [
+                {dx: 2, dy: 2}, {dx: 2, dy: -2},
+                {dx: -2, dy: 2}, {dx: -2, dy: -2}
+            ];
+            
+            directions.forEach(dir => {
+                const newX = x + dir.dx;
+                const newY = y + dir.dy;
+                const midX = x + dir.dx / 2;
+                const midY = y + dir.dy / 2;
                 
-                directions.forEach(dir => {
-                    let newX = x + dir.dx;
-                    let newY = y + dir.dy;
+                // Check if the move is within bounds, not crossing river, and not blocked
+                if (isValidPosition(newX, newY) && 
+                    !crossesRiver(newY, color) && 
+                    !getPieceAtPosition(midX, midY) && 
+                    (getPieceAtPosition(newX, newY)?.dataset.color !== color || !getPieceAtPosition(newX, newY))) {
+                    moves.push({x: newX, y: newY});
+                }
+            });
+            
+            return moves;
+        }
+
+        // Check if a position crosses the river
+        function crossesRiver(y, color) {
+            // Red pieces cannot go above the river (y < 5)
+            if (color === RED) {
+                return y < 5;
+            }
+            // Black pieces cannot go below the river (y > 4)
+            else {
+                return y > 4;
+            }
+        }
+
+        // Get possible moves for Horse/Knight
+        function getHorseMoves(x, y) {
+            const color = currentPlayer;
+            const moves = [];
+            const directions = [
+                // Up-right, up-left, right-up, right-down, down-right, down-left, left-up, left-down
+                {dx: 1, dy: -2, blockX: 0, blockY: -1},
+                {dx: -1, dy: -2, blockX: 0, blockY: -1},
+                {dx: 2, dy: -1, blockX: 1, blockY: 0},
+                {dx: 2, dy: 1, blockX: 1, blockY: 0},
+                {dx: 1, dy: 2, blockX: 0, blockY: 1},
+                {dx: -1, dy: 2, blockX: 0, blockY: 1},
+                {dx: -2, dy: -1, blockX: -1, blockY: 0},
+                {dx: -2, dy: 1, blockX: -1, blockY: 0}
+            ];
+            
+            directions.forEach(dir => {
+                const newX = x + dir.dx;
+                const newY = y + dir.dy;
+                const blockX = x + dir.blockX;
+                const blockY = y + dir.blockY;
+                
+                // Check if the move is within bounds, not blocked, and not occupied by own piece
+                if (isValidPosition(newX, newY) && 
+                    !getPieceAtPosition(blockX, blockY) && 
+                    (getPieceAtPosition(newX, newY)?.dataset.color !== color || !getPieceAtPosition(newX, newY))) {
+                    moves.push({x: newX, y: newY});
+                }
+            });
+            
+            return moves;
+        }
+
+        // Get possible moves for Chariot/Rook
+        function getChariotMoves(x, y) {
+            const color = currentPlayer;
+            const moves = [];
+            
+            // Check in all four directions (up, right, down, left)
+            const directions = [
+                {dx: 0, dy: -1}, // up
+                {dx: 1, dy: 0},  // right
+                {dx: 0, dy: 1},  // down
+                {dx: -1, dy: 0}  // left
+            ];
+            
+            directions.forEach(dir => {
+                let newX = x + dir.dx;
+                let newY = y + dir.dy;
+                
+                // Keep moving in that direction until reaching a boundary or a piece
+                while (isValidPosition(newX, newY)) {
+                    const pieceAtPosition = getPieceAtPosition(newX, newY);
                     
-                    // Keep moving in that direction until reaching a boundary or a piece
-                    while (isValidPosition(newX, newY)) {
-                        const pieceAtPosition = getPieceAtPosition(newX, newY);
-                        
-                        if (!pieceAtPosition) {
-                            // Empty space, can move here
+                    if (!pieceAtPosition) {
+                        // Empty space, can move here
+                        moves.push({x: newX, y: newY});
+                    } else {
+                        // Found a piece
+                        if (pieceAtPosition.dataset.color !== color) {
+                            // Enemy piece, can capture
                             moves.push({x: newX, y: newY});
+                        }
+                        // Stop looking in this direction
+                        break;
+                    }
+                    
+                    newX += dir.dx;
+                    newY += dir.dy;
+                }
+            });
+            
+            return moves;
+        }
+
+        // Get possible moves for Cannon
+        function getCannonMoves(x, y) {
+            const color = currentPlayer;
+            const moves = [];
+            
+            // Check in all four directions (up, right, down, left)
+            const directions = [
+                {dx: 0, dy: -1}, // up
+                {dx: 1, dy: 0},  // right
+                {dx: 0, dy: 1},  // down
+                {dx: -1, dy: 0}  // left
+            ];
+            
+            directions.forEach(dir => {
+                let newX = x + dir.dx;
+                let newY = y + dir.dy;
+                let foundPlatform = false;
+                
+                // Keep moving in that direction
+                while (isValidPosition(newX, newY)) {
+                    const pieceAtPosition = getPieceAtPosition(newX, newY);
+                    
+                    if (!pieceAtPosition) {
+                        // Empty space
+                        if (!foundPlatform) {
+                            // Can move here if no platform found yet
+                            moves.push({x: newX, y: newY});
+                        }
+                    } else {
+                        // Found a piece
+                        if (!foundPlatform) {
+                            // First piece encountered becomes the platform
+                            foundPlatform = true;
                         } else {
-                            // Found a piece
+                            // Second piece encountered
                             if (pieceAtPosition.dataset.color !== color) {
                                 // Enemy piece, can capture
                                 moves.push({x: newX, y: newY});
@@ -894,176 +1060,242 @@
                             // Stop looking in this direction
                             break;
                         }
-                        
-                        newX += dir.dx;
-                        newY += dir.dy;
                     }
-                });
-                
-                return moves;
-            }
-
-            // Get possible moves for Cannon
-            function getCannonMoves(x, y) {
-                const color = currentPlayer;
-                const moves = [];
-                
-                // Check in all four directions (up, right, down, left)
-                const directions = [
-                    {dx: 0, dy: -1}, // up
-                    {dx: 1, dy: 0},  // right
-                    {dx: 0, dy: 1},  // down
-                    {dx: -1, dy: 0}  // left
-                ];
-                
-                directions.forEach(dir => {
-                    let newX = x + dir.dx;
-                    let newY = y + dir.dy;
-                    let foundPlatform = false;
                     
-                    // Keep moving in that direction
-                    while (isValidPosition(newX, newY)) {
-                        const pieceAtPosition = getPieceAtPosition(newX, newY);
+                    newX += dir.dx;
+                    newY += dir.dy;
+                }
+            });
+            
+            return moves;
+        }
+
+        // Get possible moves for Soldier/Pawn
+        function getSoldierMoves(x, y) {
+            const color = currentPlayer;
+            const moves = [];
+            
+            if (color === RED) {
+                // Red soldier moves up
+                if (isValidPosition(x, y - 1)) {
+                    if (!getPieceAtPosition(x, y - 1) || getPieceAtPosition(x, y - 1).dataset.color !== color) {
+                        moves.push({x: x, y: y - 1});
+                    }
+                }
+                
+                // If soldier has crossed the river, it can move horizontally
+                if (y <= 4) {
+                    // Check left
+                    if (isValidPosition(x - 1, y)) {
+                        if (!getPieceAtPosition(x - 1, y) || getPieceAtPosition(x - 1, y).dataset.color !== color) {
+                            moves.push({x: x - 1, y: y});
+                        }
+                    }
+                    
+                    // Check right
+                    if (isValidPosition(x + 1, y)) {
+                        if (!getPieceAtPosition(x + 1, y) || getPieceAtPosition(x + 1, y).dataset.color !== color) {
+                            moves.push({x: x + 1, y: y});
+                        }
+                    }
+                }
+            } else {
+                // Black soldier moves down
+                if (isValidPosition(x, y + 1)) {
+                    if (!getPieceAtPosition(x, y + 1) || getPieceAtPosition(x, y + 1).dataset.color !== color) {
+                        moves.push({x: x, y: y + 1});
+                    }
+                }
+                
+                // If soldier has crossed the river, it can move horizontally
+                if (y >= 5) {
+                    // Check left
+                    if (isValidPosition(x - 1, y)) {
+                        if (!getPieceAtPosition(x - 1, y) || getPieceAtPosition(x - 1, y).dataset.color !== color) {
+                            moves.push({x: x - 1, y: y});
+                        }
+                    }
+                    
+                    // Check right
+                    if (isValidPosition(x + 1, y)) {
+                        if (!getPieceAtPosition(x + 1, y) || getPieceAtPosition(x + 1, y).dataset.color !== color) {
+                            moves.push({x: x + 1, y: y});
+                        }
+                    }
+                }
+            }
+            
+            return moves;
+        }
+
+        // Check if a position is valid (within board boundaries)
+        function isValidPosition(x, y) {
+            return x >= 0 && x < BOARD_WIDTH && y >= 0 && y < BOARD_HEIGHT;
+        }
+
+        // Get the piece at a specific position
+        function getPieceAtPosition(x, y) {
+            return document.querySelector(`.piece[data-x="${x}"][data-y="${y}"]`);
+        }
+
+        // Check if a move is possible
+        function isPossibleMove(fromX, fromY, toX, toY) {
+            const pieceElement = getPieceAtPosition(fromX, fromY);
+            if (!pieceElement) return false;
+            
+            const pieceType = pieceElement.dataset.type;
+            let possibleMoves = [];
+            
+            switch (pieceType) {
+                case 'general':
+                    possibleMoves = getGeneralMoves(fromX, fromY);
+                    break;
+                case 'advisor':
+                    possibleMoves = getAdvisorMoves(fromX, fromY);
+                    break;
+                case 'elephant':
+                    possibleMoves = getElephantMoves(fromX, fromY);
+                    break;
+                case 'horse':
+                    possibleMoves = getHorseMoves(fromX, fromY);
+                    break;
+                case 'chariot':
+                    possibleMoves = getChariotMoves(fromX, fromY);
+                    break;
+                case 'cannon':
+                    possibleMoves = getCannonMoves(fromX, fromY);
+                    break;
+                case 'soldier':
+                    possibleMoves = getSoldierMoves(fromX, fromY);
+                    break;
+            }
+            
+            return possibleMoves.some(move => move.x === toX && move.y === toY);
+        }
+
+        // Reset game state
+        function resetGameState() {
+            selectedPiece = null;
+            currentPlayer = RED;
+            gameOver = false;
+            moveHistory = [];
+            aiEnabled = false;
+            aiThinking = false;
+            updateGameInfo("Red's Turn");
+            aiToggleButton.textContent = 'AI Opponent: OFF';
+            aiToggleButton.classList.remove('active');
+        }
+
+        // Remove event listeners from a piece
+        function removePieceEventListeners(pieceElement) {
+            const newPiece = pieceElement.cloneNode(true);
+            pieceElement.parentNode.replaceChild(newPiece, pieceElement);
+            return newPiece;
+        }
+
+        // Make AI move - main entry point for AI decision making
+        function makeAIMove() {
+            if (gameOver || currentPlayer !== BLACK || !aiEnabled || aiThinking) return;
+            
+            aiThinking = true;
+            updateGameInfo("AI is thinking...");
+            
+            const timeoutId = setTimeout(() => {
+                try {
+                    // Simplify the AI for better performance - use random legal moves
+                    const moves = getAllPossibleMoves(BLACK);
+                    
+                    if (moves.length > 0) {
+                        // Choose a move that captures a piece if possible
+                        let bestMoves = moves.filter(move => 
+                            getPieceAtPosition(move.toX, move.toY) !== null
+                        );
                         
-                        if (!pieceAtPosition) {
-                            // Empty space
-                            if (!foundPlatform) {
-                                // Can move here if no platform found yet
-                                moves.push({x: newX, y: newY});
-                            }
+                        // If no capturing moves, use all legal moves
+                        if (bestMoves.length === 0) {
+                            bestMoves = moves;
+                        }
+                        
+                        // Select a random move from the best moves
+                        const randomIndex = Math.floor(Math.random() * bestMoves.length);
+                        const bestMove = bestMoves[randomIndex];
+                        
+                        const pieceElement = getPieceAtPosition(bestMove.fromX, bestMove.fromY);
+                        if (pieceElement) {
+                            movePiece(pieceElement, bestMove.toX, bestMove.toY);
                         } else {
-                            // Found a piece
-                            if (!foundPlatform) {
-                                // First piece encountered becomes the platform
-                                foundPlatform = true;
-                            } else {
-                                // Second piece encountered
-                                if (pieceAtPosition.dataset.color !== color) {
-                                    // Enemy piece, can capture
-                                    moves.push({x: newX, y: newY});
-                                }
-                                // Stop looking in this direction
-                                break;
-                            }
+                            console.error("AI selected a non-existent piece:", bestMove);
+                            updateGameInfo("AI encountered an error. Try again.");
                         }
-                        
-                        newX += dir.dx;
-                        newY += dir.dy;
-                    }
-                });
-                
-                return moves;
-            }
-
-            // Get possible moves for Soldier/Pawn
-            function getSoldierMoves(x, y) {
-                const color = currentPlayer;
-                const moves = [];
-                
-                if (color === RED) {
-                    // Red soldier moves up
-                    if (isValidPosition(x, y - 1)) {
-                        if (!getPieceAtPosition(x, y - 1) || getPieceAtPosition(x, y - 1).dataset.color !== color) {
-                            moves.push({x: x, y: y - 1});
+                    } else {
+                        // No valid moves found, which should mean checkmate or stalemate
+                        console.log("AI couldn't find a valid move");
+                        if (isInCheck(BLACK)) {
+                            updateGameInfo("Checkmate! RED wins!");
+                            gameOver = true;
+                        } else {
+                            updateGameInfo("Stalemate! Game is a draw.");
+                            gameOver = true;
                         }
                     }
-                    
-                    // If soldier has crossed the river, it can move horizontally
-                    if (y <= 4) {
-                        // Check left
-                        if (isValidPosition(x - 1, y)) {
-                            if (!getPieceAtPosition(x - 1, y) || getPieceAtPosition(x - 1, y).dataset.color !== color) {
-                                moves.push({x: x - 1, y: y});
-                            }
-                        }
-                        
-                        // Check right
-                        if (isValidPosition(x + 1, y)) {
-                            if (!getPieceAtPosition(x + 1, y) || getPieceAtPosition(x + 1, y).dataset.color !== color) {
-                                moves.push({x: x + 1, y: y});
-                            }
-                        }
-                    }
-                } else {
-                    // Black soldier moves down
-                    if (isValidPosition(x, y + 1)) {
-                        if (!getPieceAtPosition(x, y + 1) || getPieceAtPosition(x, y + 1).dataset.color !== color) {
-                            moves.push({x: x, y: y + 1});
-                        }
-                    }
-                    
-                    // If soldier has crossed the river, it can move horizontally
-                    if (y >= 5) {
-                        // Check left
-                        if (isValidPosition(x - 1, y)) {
-                            if (!getPieceAtPosition(x - 1, y) || getPieceAtPosition(x - 1, y).dataset.color !== color) {
-                                moves.push({x: x - 1, y: y});
-                            }
-                        }
-                        
-                        // Check right
-                        if (isValidPosition(x + 1, y)) {
-                            if (!getPieceAtPosition(x + 1, y) || getPieceAtPosition(x + 1, y).dataset.color !== color) {
-                                moves.push({x: x + 1, y: y});
-                            }
-                        }
-                    }
+                } catch (error) {
+                    console.error("AI error:", error);
+                    updateGameInfo("AI encountered an error. Try again.");
+                } finally {
+                    aiThinking = false;
+                    clearTimeout(timeoutId);
                 }
-                
-                return moves;
-            }
+            }, 300);
+        }
 
-            // Check if a position is valid (within board boundaries)
-            function isValidPosition(x, y) {
-                return x >= 0 && x < BOARD_WIDTH && y >= 0 && y < BOARD_HEIGHT;
-            }
-
-            // Get the piece at a specific position
-            function getPieceAtPosition(x, y) {
-                return document.querySelector(`.piece[data-x="${x}"][data-y="${y}"]`);
-            }
-
-            // Check if a move is possible
-            function isPossibleMove(fromX, fromY, toX, toY) {
-                const pieceElement = getPieceAtPosition(fromX, fromY);
-                if (!pieceElement) return false;
-                
-                const pieceType = pieceElement.dataset.type;
-                let possibleMoves = [];
-                
-                switch (pieceType) {
-                    case 'general':
-                        possibleMoves = getGeneralMoves(fromX, fromY);
-                        break;
-                    case 'advisor':
-                        possibleMoves = getAdvisorMoves(fromX, fromY);
-                        break;
-                    case 'elephant':
-                        possibleMoves = getElephantMoves(fromX, fromY);
-                        break;
-                    case 'horse':
-                        possibleMoves = getHorseMoves(fromX, fromY);
-                        break;
-                    case 'chariot':
-                        possibleMoves = getChariotMoves(fromX, fromY);
-                        break;
-                    case 'cannon':
-                        possibleMoves = getCannonMoves(fromX, fromY);
-                        break;
-                    case 'soldier':
-                        possibleMoves = getSoldierMoves(fromX, fromY);
-                        break;
+        // Toggle AI on/off
+        function toggleAI() {
+            if (aiThinking) return; // Prevent toggling while AI is thinking
+            
+            aiEnabled = !aiEnabled;
+            aiToggleButton.textContent = `AI Opponent: ${aiEnabled ? 'ON' : 'OFF'}`;
+            
+            if (aiEnabled) {
+                aiToggleButton.classList.add('active');
+                // If it's Black's turn, make the AI move
+                if (currentPlayer === BLACK && !gameOver) {
+                    setTimeout(() => {
+                        try {
+                            makeAIMove();
+                        } catch (error) {
+                            console.error("Error making AI move:", error);
+                            updateGameInfo("AI encountered an error. Try again.");
+                            aiThinking = false;
+                        }
+                    }, 100);
                 }
-                
-                return possibleMoves.some(move => move.x === toX && move.y === toY);
+            } else {
+                aiToggleButton.classList.remove('active');
             }
+        }
 
-            // Move a piece
-            function movePiece(pieceElement, toX, toY) {
-                if (gameOver || aiThinking) return;
+        // Move a piece
+        function movePiece(pieceElement, toX, toY) {
+            if (gameOver || aiThinking) return;
+            
+            try {
+                if (!pieceElement || !pieceElement.dataset) {
+                    console.error("Invalid piece element in movePiece");
+                    return;
+                }
                 
                 const fromX = parseInt(pieceElement.dataset.x);
                 const fromY = parseInt(pieceElement.dataset.y);
+                
+                if (isNaN(fromX) || isNaN(fromY) || isNaN(toX) || isNaN(toY)) {
+                    console.error("Invalid coordinates in movePiece");
+                    return;
+                }
+                
+                if (toX < 0 || toX >= BOARD_WIDTH || toY < 0 || toY >= BOARD_HEIGHT) {
+                    console.error("Move coordinates out of bounds");
+                    return;
+                }
                 
                 // Check if there's a piece at the destination
                 const targetPiece = getPieceAtPosition(toX, toY);
@@ -1108,13 +1340,19 @@
                 deselectPiece();
                 
                 // Check if the move puts the opponent's general in check
-                const isCheck = isInCheck(currentPlayer === RED ? BLACK : RED);
+                const nextPlayer = currentPlayer === RED ? BLACK : RED;
+                const isCheck = isInCheck(nextPlayer);
                 
                 // Switch players
-                currentPlayer = currentPlayer === RED ? BLACK : RED;
+                currentPlayer = nextPlayer;
                 
                 // Check if the current player is in checkmate
-                const isCheckmate = isInCheckmate();
+                let isCheckmate = false;
+                try {
+                    isCheckmate = isInCheckmate();
+                } catch (error) {
+                    console.error("Error checking for checkmate:", error);
+                }
                 
                 if (isCheckmate) {
                     gameOver = true;
@@ -1125,76 +1363,92 @@
                     updateGameInfo(`${currentPlayer.toUpperCase()}'s turn`);
                 }
                 
-                // Add piece labels to board
-                document.querySelectorAll('.piece').forEach(piece => {
-                    const type = piece.dataset.type;
-                    const color = piece.dataset.color;
-                    
-                    // Add small text label below the piece symbol for clarity
-                    const labelElement = piece.querySelector('.piece-text small');
-                    if (!labelElement) {
-                        const small = document.createElement('small');
-                        small.style.display = 'block';
-                        small.style.fontSize = 'calc(var(--grid-size) * 0.15)';
-                        small.style.marginTop = '2px';
-                        small.textContent = color.charAt(0).toUpperCase();
-                        piece.querySelector('.piece-text').appendChild(small);
-                    }
-                });
-                
                 // If it's Black's turn and AI is enabled, make AI move after a short delay
                 if (currentPlayer === BLACK && aiEnabled && !gameOver) {
                     // Use a timeout to make it look like the AI is thinking
                     setTimeout(() => {
-                        makeAIMove();
+                        try {
+                            makeAIMove();
+                        } catch (error) {
+                            console.error("Error making AI move:", error);
+                            updateGameInfo("AI encountered an error. Try again.");
+                            aiThinking = false;
+                        }
                     }, 500);
                 }
+            } catch (error) {
+                console.error("Error moving piece:", error);
+                aiThinking = false;
             }
+        }
 
-            // Check if a player's general is in check
-            function isInCheck(playerColor) {
+        // Check if a player's general is in check
+        function isInCheck(playerColor) {
+            try {
                 const general = document.querySelector(`.piece[data-type="general"][data-color="${playerColor}"]`);
-                if (!general) return false;
+                if (!general) {
+                    console.warn(`General not found for ${playerColor} player`);
+                    return false;
+                }
                 
                 const generalX = parseInt(general.dataset.x);
                 const generalY = parseInt(general.dataset.y);
                 
+                if (isNaN(generalX) || isNaN(generalY)) {
+                    console.error("Invalid general coordinates in isInCheck");
+                    return false;
+                }
+                
                 // Get all enemy pieces
-                const enemyPieces = document.querySelectorAll(`.piece[data-color="${playerColor === RED ? BLACK : RED}"]`);
+                const enemyColor = playerColor === RED ? BLACK : RED;
+                const enemyPieces = document.querySelectorAll(`.piece[data-color="${enemyColor}"]`);
                 
                 // Check if any enemy piece can capture the general
                 for (const piece of enemyPieces) {
+                    if (!piece || !piece.dataset) continue;
+                    
                     const pieceX = parseInt(piece.dataset.x);
                     const pieceY = parseInt(piece.dataset.y);
                     const pieceType = piece.dataset.type;
                     
+                    if (isNaN(pieceX) || isNaN(pieceY) || !pieceType) {
+                        continue;
+                    }
+                    
                     // Temporarily change the current player to check moves
                     const savedCurrentPlayer = currentPlayer;
-                    currentPlayer = playerColor === RED ? BLACK : RED;
+                    currentPlayer = enemyColor;
                     
                     let possibleMoves = [];
-                    switch (pieceType) {
-                        case 'general':
-                            possibleMoves = getGeneralMoves(pieceX, pieceY);
-                            break;
-                        case 'advisor':
-                            possibleMoves = getAdvisorMoves(pieceX, pieceY);
-                            break;
-                        case 'elephant':
-                            possibleMoves = getElephantMoves(pieceX, pieceY);
-                            break;
-                        case 'horse':
-                            possibleMoves = getHorseMoves(pieceX, pieceY);
-                            break;
-                        case 'chariot':
-                            possibleMoves = getChariotMoves(pieceX, pieceY);
-                            break;
-                        case 'cannon':
-                            possibleMoves = getCannonMoves(pieceX, pieceY);
-                            break;
-                        case 'soldier':
-                            possibleMoves = getSoldierMoves(pieceX, pieceY);
-                            break;
+                    try {
+                        switch (pieceType) {
+                            case 'general':
+                                possibleMoves = getGeneralMoves(pieceX, pieceY);
+                                break;
+                            case 'advisor':
+                                possibleMoves = getAdvisorMoves(pieceX, pieceY);
+                                break;
+                            case 'elephant':
+                                possibleMoves = getElephantMoves(pieceX, pieceY);
+                                break;
+                            case 'horse':
+                                possibleMoves = getHorseMoves(pieceX, pieceY);
+                                break;
+                            case 'chariot':
+                                possibleMoves = getChariotMoves(pieceX, pieceY);
+                                break;
+                            case 'cannon':
+                                possibleMoves = getCannonMoves(pieceX, pieceY);
+                                break;
+                            case 'soldier':
+                                possibleMoves = getSoldierMoves(pieceX, pieceY);
+                                break;
+                            default:
+                                possibleMoves = [];
+                        }
+                    } catch (error) {
+                        console.error(`Error getting moves for ${pieceType}:`, error);
+                        possibleMoves = [];
                     }
                     
                     // Restore the current player
@@ -1207,63 +1461,78 @@
                 }
                 
                 return false;
+            } catch (error) {
+                console.error("Error in isInCheck:", error);
+                return false; // Default to not in check if there's an error
             }
+        }
 
-            // Check if the current player is in checkmate
-            function isInCheckmate() {
-                // If not in check, cannot be in checkmate
-                if (!isInCheck(currentPlayer)) return false;
+        // Check if the current player is in checkmate
+        function isInCheckmate() {
+            // If not in check, cannot be in checkmate
+            if (!isInCheck(currentPlayer)) return false;
+            
+            // Get all of the player's pieces
+            const playerPieces = document.querySelectorAll(`.piece[data-color="${currentPlayer}"]`);
+            
+            // Check if any piece can make a move that gets out of check
+            for (const piece of playerPieces) {
+                const pieceX = parseInt(piece.dataset.x);
+                const pieceY = parseInt(piece.dataset.y);
+                const pieceType = piece.dataset.type;
                 
-                // Get all of the player's pieces
-                const playerPieces = document.querySelectorAll(`.piece[data-color="${currentPlayer}"]`);
-                
-                // Check if any piece can make a move that gets out of check
-                for (const piece of playerPieces) {
-                    const pieceX = parseInt(piece.dataset.x);
-                    const pieceY = parseInt(piece.dataset.y);
-                    const pieceType = piece.dataset.type;
-                    
-                    let possibleMoves = [];
-                    switch (pieceType) {
-                        case 'general':
-                            possibleMoves = getGeneralMoves(pieceX, pieceY);
-                            break;
-                        case 'advisor':
-                            possibleMoves = getAdvisorMoves(pieceX, pieceY);
-                            break;
-                        case 'elephant':
-                            possibleMoves = getElephantMoves(pieceX, pieceY);
-                            break;
-                        case 'horse':
-                            possibleMoves = getHorseMoves(pieceX, pieceY);
-                            break;
-                        case 'chariot':
-                            possibleMoves = getChariotMoves(pieceX, pieceY);
-                            break;
-                        case 'cannon':
-                            possibleMoves = getCannonMoves(pieceX, pieceY);
-                            break;
-                        case 'soldier':
-                            possibleMoves = getSoldierMoves(pieceX, pieceY);
-                            break;
-                    }
-                    
-                    // For each possible move, check if it gets out of check
-                    for (const move of possibleMoves) {
-                        if (moveEscapesCheck(piece, move.x, move.y)) {
-                            return false; // Found a move that escapes check
-                        }
-                    }
+                let possibleMoves = [];
+                switch (pieceType) {
+                    case 'general':
+                        possibleMoves = getGeneralMoves(pieceX, pieceY);
+                        break;
+                    case 'advisor':
+                        possibleMoves = getAdvisorMoves(pieceX, pieceY);
+                        break;
+                    case 'elephant':
+                        possibleMoves = getElephantMoves(pieceX, pieceY);
+                        break;
+                    case 'horse':
+                        possibleMoves = getHorseMoves(pieceX, pieceY);
+                        break;
+                    case 'chariot':
+                        possibleMoves = getChariotMoves(pieceX, pieceY);
+                        break;
+                    case 'cannon':
+                        possibleMoves = getCannonMoves(pieceX, pieceY);
+                        break;
+                    case 'soldier':
+                        possibleMoves = getSoldierMoves(pieceX, pieceY);
+                        break;
                 }
                 
-                // No moves found that escape check
-                return true;
+                // For each possible move, check if it gets out of check
+                for (const move of possibleMoves) {
+                    if (moveEscapesCheck(piece, move.x, move.y)) {
+                        return false; // Found a move that escapes check
+                    }
+                }
             }
+            
+            // No moves found that escape check
+            return true;
+        }
 
-            // Check if a move would get the player out of check
-            function moveEscapesCheck(pieceElement, toX, toY) {
+        // Check if a move would get the player out of check
+        function moveEscapesCheck(pieceElement, toX, toY) {
+            try {
+                if (!pieceElement || !pieceElement.dataset) {
+                    console.error("Invalid piece element in moveEscapesCheck");
+                    return false;
+                }
+                
                 const fromX = parseInt(pieceElement.dataset.x);
                 const fromY = parseInt(pieceElement.dataset.y);
+                if (isNaN(fromX) || isNaN(fromY)) {
+                    console.error("Invalid coordinates in moveEscapesCheck");
+                    return false;
+                }
+                
                 const pieceColor = pieceElement.dataset.color;
                 
                 // Save original position
@@ -1300,7 +1569,7 @@
                 
                 // Restore target piece if it existed
                 if (targetPieceData) {
-                    const restoredPiece = createPieceElement({
+                    createPieceElement({
                         type: targetPieceData.type,
                         color: targetPieceData.color,
                         x: targetPieceData.x,
@@ -1309,70 +1578,277 @@
                 }
                 
                 return !stillInCheck;
+            } catch (error) {
+                console.error("Error in moveEscapesCheck:", error);
+                return false; // Default to not allowing the move if there's an error
             }
+        }
 
-            // Update game info text
-            function updateGameInfo(text) {
-                gameInfoElement.textContent = text;
-            }
+        // Update game info text
+        function updateGameInfo(text) {
+            gameInfoElement.textContent = text;
+        }
 
-            // Undo last move
-            function undoLastMove() {
+        // Undo last move
+        function undoLastMove() {
+            try {
                 if (moveHistory.length === 0 || gameOver) return;
                 
-                const lastMove = moveHistory.pop();
+                // If AI is enabled and it's Black's turn, undo twice (user's move and AI's move)
+                const undoCount = (aiEnabled && currentPlayer === RED) ? 2 : 1;
                 
-                // Find the piece that was moved
-                const pieceElement = getPieceAtPosition(lastMove.piece.toX, lastMove.piece.toY);
-                if (pieceElement) {
-                    // Move it back
-                    pieceElement.dataset.x = lastMove.piece.fromX;
-                    pieceElement.dataset.y = lastMove.piece.fromY;
-                    updatePiecePosition(pieceElement);
+                for (let i = 0; i < undoCount; i++) {
+                    if (moveHistory.length === 0) break;
+                    
+                    const lastMove = moveHistory.pop();
+                    
+                    // Find the piece that was moved
+                    const pieceElement = getPieceAtPosition(lastMove.piece.toX, lastMove.piece.toY);
+                    if (pieceElement) {
+                        // Move it back
+                        pieceElement.dataset.x = lastMove.piece.fromX;
+                        pieceElement.dataset.y = lastMove.piece.fromY;
+                        updatePiecePosition(pieceElement);
+                    } else {
+                        console.error("Could not find piece to undo move");
+                    }
+                    
+                    // Restore captured piece if any
+                    if (lastMove.captured) {
+                        createPieceElement({
+                            type: lastMove.captured.type,
+                            color: lastMove.captured.color,
+                            x: lastMove.captured.x,
+                            y: lastMove.captured.y
+                        });
+                    }
+                    
+                    // Switch back to previous player
+                    currentPlayer = currentPlayer === RED ? BLACK : RED;
                 }
-                
-                // Restore captured piece if any
-                if (lastMove.captured) {
-                    createPieceElement({
-                        type: lastMove.captured.type,
-                        color: lastMove.captured.color,
-                        x: lastMove.captured.x,
-                        y: lastMove.captured.y
-                    });
-                }
-                
-                // Switch back to previous player
-                currentPlayer = currentPlayer === RED ? BLACK : RED;
                 
                 // Update game info
                 gameOver = false;
                 updateGameInfo(`${currentPlayer.toUpperCase()}'s turn`);
-            }
-
-            // Event listeners
-            newGameButton.addEventListener('click', initGame);
-            undoMoveButton.addEventListener('click', undoLastMove);
-            aiToggleButton.addEventListener('click', toggleAI);
-            
-            // Toggle AI on/off
-            function toggleAI() {
-                aiEnabled = !aiEnabled;
-                aiToggleButton.textContent = `AI Opponent: ${aiEnabled ? 'ON' : 'OFF'}`;
                 
-                if (aiEnabled) {
-                    aiToggleButton.classList.add('active');
-                    // If it's Black's turn, make the AI move
-                    if (currentPlayer === BLACK && !gameOver) {
-                        makeAIMove();
-                    }
-                } else {
-                    aiToggleButton.classList.remove('active');
+                // If we're undoing back to black's turn and AI is on, make an AI move
+                if (aiEnabled && currentPlayer === BLACK && !gameOver) {
+                    setTimeout(() => {
+                        try {
+                            makeAIMove();
+                        } catch (error) {
+                            console.error("Error making AI move after undo:", error);
+                            aiThinking = false;
+                        }
+                    }, 500);
                 }
+            } catch (error) {
+                console.error("Error undoing move:", error);
+                // Try to recover game state
+                gameOver = false;
+                updateGameInfo(`${currentPlayer.toUpperCase()}'s turn (Error recovery)`);
             }
+        }
 
-            // Initialize the game
-            initGame();
+        // Event listeners
+        newGameButton.addEventListener('click', () => {
+            try {
+                initGame();
+            } catch (error) {
+                console.error("Error starting new game:", error);
+                alert("Error starting new game. Please reload the page.");
+            }
         });
+
+        undoMoveButton.addEventListener('click', () => {
+            try {
+                undoLastMove();
+            } catch (error) {
+                console.error("Error undoing move:", error);
+            }
+        });
+
+        aiToggleButton.addEventListener('click', () => {
+            try {
+                toggleAI();
+            } catch (error) {
+                console.error("Error toggling AI:", error);
+            }
+        });
+
+        instructionsButton.addEventListener('click', () => {
+            instructionsModal.style.display = 'block';
+        });
+
+        closeModalButton.addEventListener('click', () => {
+            instructionsModal.style.display = 'none';
+        });
+
+        // Close the modal when clicking outside of it
+        window.addEventListener('click', (event) => {
+            if (event.target === instructionsModal) {
+                instructionsModal.style.display = 'none';
+            }
+        });
+
+        // Get all possible moves for a player
+        function getAllPossibleMoves(player) {
+            const moves = [];
+            const pieces = document.querySelectorAll(`.piece[data-color="${player}"]`);
+            
+            pieces.forEach(piece => {
+                if (!piece || !piece.dataset) return; // Skip if piece is invalid
+                
+                try {
+                    const pieceX = parseInt(piece.dataset.x);
+                    const pieceY = parseInt(piece.dataset.y);
+                    const pieceType = piece.dataset.type;
+                    
+                    if (isNaN(pieceX) || isNaN(pieceY) || !pieceType) {
+                        console.error("Invalid piece data:", piece);
+                        return;
+                    }
+                    
+                    // Get possible moves for this piece
+                    let possibleMoves = [];
+                    
+                    // Save current player and temporarily set to the player we're checking
+                    const savedPlayer = currentPlayer;
+                    currentPlayer = player;
+                    
+                    switch (pieceType) {
+                        case 'general':
+                            possibleMoves = getGeneralMoves(pieceX, pieceY);
+                            break;
+                        case 'advisor':
+                            possibleMoves = getAdvisorMoves(pieceX, pieceY);
+                            break;
+                        case 'elephant':
+                            possibleMoves = getElephantMoves(pieceX, pieceY);
+                            break;
+                        case 'horse':
+                            possibleMoves = getHorseMoves(pieceX, pieceY);
+                            break;
+                        case 'chariot':
+                            possibleMoves = getChariotMoves(pieceX, pieceY);
+                            break;
+                        case 'cannon':
+                            possibleMoves = getCannonMoves(pieceX, pieceY);
+                            break;
+                        case 'soldier':
+                            possibleMoves = getSoldierMoves(pieceX, pieceY);
+                            break;
+                        default:
+                            console.error("Unknown piece type:", pieceType);
+                            possibleMoves = [];
+                    }
+                    
+                    // Restore current player
+                    currentPlayer = savedPlayer;
+                    
+                    // For each move, check if it's legal (doesn't leave king in check)
+                    possibleMoves.forEach(move => {
+                        if (moveEscapesCheck(piece, move.x, move.y)) {
+                            moves.push({
+                                fromX: pieceX,
+                                fromY: pieceY,
+                                toX: move.x,
+                                toY: move.y,
+                                pieceType: pieceType
+                            });
+                        }
+                    });
+                } catch (error) {
+                    console.error("Error processing piece moves:", error, piece);
+                }
+            });
+            
+            return moves;
+        }
+
+        // Evaluate the current board position
+        function evaluateBoard(player) {
+            try {
+                // Use material advantage as the primary evaluation
+                let score = 0;
+                
+                // Piece values
+                const pieceValues = {
+                    'general': 10000,  // Most valuable piece
+                    'chariot': 900,    // Roughly equivalent to rook in chess
+                    'horse': 400,      // Knight
+                    'cannon': 450,     // Unique to Xiangqi, slightly more valuable than horse in many positions
+                    'elephant': 200,   // Minor piece
+                    'advisor': 200,    // Minor piece
+                    'soldier': 100     // Basic unit, but more valuable after crossing river
+                };
+                
+                // Get all pieces on the board
+                const pieces = document.querySelectorAll('.piece');
+                
+                pieces.forEach(piece => {
+                    if (!piece || !piece.dataset) return;
+                    
+                    const pieceType = piece.dataset.type;
+                    const pieceColor = piece.dataset.color;
+                    
+                    if (!pieceType || !pieceColor || !pieceValues[pieceType]) return;
+                    
+                    const value = pieceValues[pieceType];
+                    
+                    // Add positional bonuses
+                    let positionBonus = 0;
+                    const x = parseInt(piece.dataset.x);
+                    const y = parseInt(piece.dataset.y);
+                    
+                    if (isNaN(x) || isNaN(y)) return;
+                    
+                    if (pieceType === 'soldier') {
+                        // Soldiers are more valuable in advanced positions
+                        if (pieceColor === RED) {
+                            positionBonus = (BOARD_HEIGHT - 1 - y) * 10; // More valuable as they advance
+                            if (y < 5) positionBonus += 50; // Bonus for crossing the river
+                        } else {
+                            positionBonus = y * 10; // More valuable as they advance
+                            if (y >= 5) positionBonus += 50; // Bonus for crossing the river
+                        }
+                    } else if (pieceType === 'chariot') {
+                        // Chariots are more valuable in the center files
+                        const centerDistance = Math.abs(x - 4);
+                        positionBonus = (4 - centerDistance) * 10;
+                    } else if (pieceType === 'horse') {
+                        // Horses are more valuable in the center
+                        const centerDistanceX = Math.abs(x - 4);
+                        const centerDistanceY = Math.abs(y - 4.5);
+                        positionBonus = (8 - centerDistanceX - centerDistanceY) * 5;
+                    }
+                    
+                    // Add the piece value to the score (positive for current player, negative for opponent)
+                    if (pieceColor === player) {
+                        score += value + positionBonus;
+                    } else {
+                        score -= value + positionBonus;
+                    }
+                });
+                
+                // Check for check situations
+                if (isInCheck(player === RED ? BLACK : RED)) {
+                    score += 50; // Small bonus for putting opponent in check
+                }
+                
+                if (isInCheck(player)) {
+                    score -= 50; // Penalty for being in check
+                }
+                
+                return score;
+            } catch (error) {
+                console.error("Error in evaluateBoard:", error);
+                return 0; // Return neutral score on error
+            }
+        }
+
+        // Initialize the game
+        initGame();
     </script>
 </body>
 </html>
