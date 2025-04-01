@@ -503,35 +503,6 @@
                 // Add the SVG to the board
                 boardElement.appendChild(palaceSvg);
                 
-                // Add soldier and cannon position marks
-                const soldierPositions = [
-                    {x: 0, y: 3}, {x: 2, y: 3}, {x: 4, y: 3}, {x: 6, y: 3}, {x: 8, y: 3},
-                    {x: 0, y: 6}, {x: 2, y: 6}, {x: 4, y: 6}, {x: 6, y: 6}, {x: 8, y: 6}
-                ];
-                
-                const cannonPositions = [
-                    {x: 1, y: 2}, {x: 7, y: 2},
-                    {x: 1, y: 7}, {x: 7, y: 7}
-                ];
-                
-                [...soldierPositions, ...cannonPositions].forEach(pos => {
-                    // Skip if position is outside visible board boundaries
-                    if (pos.x >= BOARD_COLS || pos.y >= BOARD_ROWS) return;
-                    
-                    const mark = document.createElement('div');
-                    mark.className = 'point-mark';
-                    
-                    // Position mark directly on grid intersection
-                    const markLeft = pos.x * (100 / BOARD_COLS);
-                    const markTop = pos.y * (100 / BOARD_ROWS);
-                    
-                    mark.style.left = `${markLeft}%`;
-                    mark.style.top = `${markTop}%`;
-                    mark.style.transform = 'translate(-50%, -50%)';
-                    
-                    boardElement.appendChild(mark);
-                });
-                
                 // Initialize pieces
                 setupInitialPieces();
                 
