@@ -118,18 +118,28 @@ function createPieceElement(piece) {
     text.setAttribute("text-anchor", "middle");
     text.setAttribute("font-size", "60");
     
-    // Add appropriate symbol based on piece type
-    const symbols = {
-        'general': '♚',  // King
-        'advisor': '♝',  // Bishop
-        'elephant': '♘', // Knight (modified)
-        'horse': '♞',    // Knight
-        'chariot': '♜',  // Rook
-        'cannon': '♛',   // Queen (representing cannon)
-        'soldier': '♟'   // Pawn
+    // Add appropriate symbol based on piece type and notation style
+    const westernSymbols = {
+        'general': '♔',  // King
+        'advisor': '♗',  // Bishop
+        'elephant': '🐘', // Elephant
+        'horse': '♘',    // Knight
+        'chariot': '♖',  // Rook
+        'cannon': '💣',   // Cannon/Bomb symbol
+        'soldier': '♟'   // Back to pawn symbol
     };
     
-    text.textContent = symbols[piece.type];
+    const chineseSymbols = {
+        'general': piece.color === RED ? '帥' : '將',
+        'advisor': piece.color === RED ? '仕' : '士',
+        'elephant': piece.color === RED ? '相' : '象',
+        'horse': piece.color === RED ? '傌' : '馬',
+        'chariot': piece.color === RED ? '俥' : '車',
+        'cannon': piece.color === RED ? '炮' : '砲',
+        'soldier': piece.color === RED ? '兵' : '卒'
+    };
+    
+    text.textContent = window.useChineseCharacters ? chineseSymbols[piece.type] : westernSymbols[piece.type];
     svg.appendChild(text);
     pieceElement.appendChild(svg);
     

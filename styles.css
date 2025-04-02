@@ -4,6 +4,11 @@
     --piece-size: calc(var(--grid-size) * 0.85);
     --board-width: calc(var(--grid-size) * 8);
     --board-height: calc(var(--grid-size) * 9);
+    --board-bg: #f8d7a3;
+    --board-border: #8b4513;
+    --button-bg: #4caf50;
+    --button-hover: #45a049;
+    --button-text: white;
 }
 
 body {
@@ -26,8 +31,8 @@ body {
     position: relative;
     width: var(--board-width);
     height: var(--board-height);
-    background-color: #f8d7a3;
-    border: 2px solid #8b4513;
+    background-color: var(--board-bg);
+    border: 2px solid var(--board-border);
     box-shadow: 0 0 10px rgba(0,0,0,0.3);
 }
 
@@ -161,15 +166,15 @@ button {
     padding: 10px 20px;
     font-size: 16px;
     cursor: pointer;
-    background-color: #4caf50;
-    color: white;
+    background-color: var(--button-bg);
+    color: var(--button-text);
     border: none;
     border-radius: 4px;
     transition: background-color 0.2s;
 }
 
 button:hover {
-    background-color: #45a049;
+    background-color: var(--button-hover);
 }
 
 button.active {
@@ -186,119 +191,177 @@ button.active {
 .modal {
     display: none;
     position: fixed;
-    z-index: 2000;  /* Ensure it's above everything */
+    z-index: 2000;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
     background-color: rgba(0,0,0,0.7);
-    animation: fadeIn 0.3s ease-in-out;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    overflow-y: auto;
 }
 
 .modal-content {
     background-color: #fefefe;
-    margin: 15% auto;
+    margin: 40px auto;
     padding: 30px;
     border: 2px solid #333;
-    width: 80%;
-    max-width: 400px;
+    width: 90%;
+    max-width: 800px;
     border-radius: 8px;
-    text-align: center;
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    animation: slideIn 0.3s ease-out;
-}
-
-@keyframes slideIn {
-    from {
-        transform: translateY(-20px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-#gameOverMessage {
-    color: #333;
-    font-size: 24px;
-    margin-bottom: 30px;
-    font-weight: bold;
-}
-
-#newGameFromModal {
-    margin-top: 20px;
-    padding: 12px 24px;
-    font-size: 18px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-#newGameFromModal:hover {
-    background-color: #45a049;
-    transform: scale(1.05);
-}
-
-#newGameFromModal:active {
-    transform: scale(0.95);
-}
-
-.close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.close:hover {
-    color: #333;
+    position: relative;
 }
 
 .piece-info {
     display: flex;
-    align-items: center;
-    margin-bottom: 15px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #ddd;
-}
-
-.piece-info:last-child {
-    border-bottom: none;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    background-color: #fff;
 }
 
 .piece-icon {
-    width: 40px;
-    height: 40px;
+    min-width: 50px;
+    height: 50px;
     border-radius: 50%;
     background: #fff;
     border: 2px solid #000;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-right: 15px;
-    font-size: 24px;
+    margin-right: 20px;
+    font-size: 30px;
+    flex-shrink: 0;
 }
 
 .piece-description {
     flex: 1;
+    text-align: left;
 }
 
 .piece-description h3 {
     margin-top: 0;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
+    color: #333;
 }
 
 .piece-description p {
     margin: 0;
-    line-height: 1.4;
+    line-height: 1.5;
+    color: #666;
+}
+
+#pieceInstructions {
+    max-height: 60vh;
+    overflow-y: auto;
+    padding-right: 15px;
+    margin: 20px 0;
+}
+
+.close {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    color: #666;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.close:hover {
+    color: #333;
+}
+
+/* Scrollbar styling */
+#pieceInstructions::-webkit-scrollbar {
+    width: 8px;
+}
+
+#pieceInstructions::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+#pieceInstructions::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+#pieceInstructions::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Theme toggle button */
+#themeToggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 10px;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    cursor: pointer;
+    background-color: var(--button-bg);
+    color: var(--button-text);
+    border: none;
+    transition: all 0.3s;
+}
+
+#themeToggle:hover {
+    transform: scale(1.1);
+}
+
+/* Notation toggle button */
+#notationToggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: var(--button-bg);
+    color: var(--button-text);
+    border: none;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#notationToggle.active-western {
+    background-color: #2196f3;
+}
+
+#notationToggle.active-chinese {
+    background-color: #f44336;
+}
+
+#notationToggle:hover {
+    filter: brightness(1.1);
+    transform: scale(1.05);
+}
+
+#notationToggle:active {
+    transform: scale(0.95);
+}
+
+.current-style {
+    background-color: #f5f5f5;
+    padding: 10px 15px;
+    border-radius: 4px;
+    margin: 10px 0;
+    font-weight: bold;
+    border-left: 4px solid #2196f3;
+}
+
+.current-style.chinese {
+    border-left-color: #f44336;
 } 

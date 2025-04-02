@@ -7,13 +7,15 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <button id="notationToggle" title="Toggle Chinese Characters" class="active-western">Western Style</button>
+    
     <h1>Xiangqi (Chinese Chess)</h1>
     <div class="game-container">
         <div class="board" id="board"></div>
         <div class="controls">
             <button id="newGame">New Game</button>
             <button id="undoMove">Undo Move</button>
-            <button id="aiToggle">AI Opponent: OFF</button>
+            <button id="aiToggle">AI Opponent: ON</button>
             <button id="instructionsBtn">Instructions</button>
         </div>
     </div>
@@ -30,75 +32,61 @@
     <!-- Instructions Modal -->
     <div id="instructionsModal" class="modal">
         <div class="modal-content">
-            <span class="close">&times;</span>
+            <span class="close" onclick="document.getElementById('instructionsModal').style.display='none'">&times;</span>
             <h2>Xiangqi (Chinese Chess) Instructions</h2>
-            
-            <h3>Basic Rules</h3>
-            <p>Xiangqi is a two-player strategy board game played on a 9×10 grid with pieces placed on the intersections. The objective is to capture the opponent's General (similar to checkmate in Western chess).</p>
-            <p>Red moves first, followed by Black, with players alternating turns. A piece is captured when an opponent's piece moves onto its position.</p>
-            
-            <h3>Pieces and Their Movements</h3>
-            
-            <div class="piece-info">
-                <div class="piece-icon">♚</div>
-                <div class="piece-description">
-                    <h3>General (King)</h3>
-                    <p>Moves one point horizontally or vertically, but cannot leave the palace (3×3 grid). Generals cannot face each other directly with no pieces in between (the "flying general" rule).</p>
+            <p class="current-style">Currently showing: <span id="currentStyle">Western Style</span></p>
+            <p>Welcome to Xiangqi! Here's how each piece moves:</p>
+            <div id="pieceInstructions">
+                <div class="piece-info">
+                    <div id="generalIcon" class="piece-icon">♔</div>
+                    <div class="piece-description">
+                        <h3>General (King)</h3>
+                        <p>Moves one space at a time within the palace (the 3x3 grid marked with diagonal lines). Cannot leave the palace or face the opposing general directly without pieces between them.</p>
+                    </div>
+                </div>
+                <div class="piece-info">
+                    <div id="advisorIcon" class="piece-icon">♗</div>
+                    <div class="piece-description">
+                        <h3>Advisor</h3>
+                        <p>Moves one space diagonally within the palace. Cannot leave the palace.</p>
+                    </div>
+                </div>
+                <div class="piece-info">
+                    <div id="elephantIcon" class="piece-icon">🐘</div>
+                    <div class="piece-description">
+                        <h3>Elephant</h3>
+                        <p>Moves exactly two spaces diagonally. Cannot jump over pieces and cannot cross the river.</p>
+                    </div>
+                </div>
+                <div class="piece-info">
+                    <div id="horseIcon" class="piece-icon">♘</div>
+                    <div class="piece-description">
+                        <h3>Horse</h3>
+                        <p>Moves like a chess knight - two spaces in one direction and one space perpendicular. Can be blocked by pieces in the first step.</p>
+                    </div>
+                </div>
+                <div class="piece-info">
+                    <div id="chariotIcon" class="piece-icon">♖</div>
+                    <div class="piece-description">
+                        <h3>Chariot (Rook)</h3>
+                        <p>Moves any number of spaces horizontally or vertically, like a chess rook.</p>
+                    </div>
+                </div>
+                <div class="piece-info">
+                    <div id="cannonIcon" class="piece-icon">💣</div>
+                    <div class="piece-description">
+                        <h3>Cannon</h3>
+                        <p>Moves like a chariot, but must jump over exactly one piece to capture. When not capturing, moves without jumping.</p>
+                    </div>
+                </div>
+                <div class="piece-info">
+                    <div id="soldierIcon" class="piece-icon">♟</div>
+                    <div class="piece-description">
+                        <h3>Soldier (Pawn)</h3>
+                        <p>Moves one space forward before crossing the river. After crossing, can also move one space horizontally. Never moves backward.</p>
+                    </div>
                 </div>
             </div>
-            
-            <div class="piece-info">
-                <div class="piece-icon">♝</div>
-                <div class="piece-description">
-                    <h3>Advisor (Minister)</h3>
-                    <p>Moves one point diagonally and must stay within the palace.</p>
-                </div>
-            </div>
-            
-            <div class="piece-info">
-                <div class="piece-icon">♘</div>
-                <div class="piece-description">
-                    <h3>Elephant</h3>
-                    <p>Moves exactly two points diagonally. Cannot jump over pieces at the intervening point. Cannot cross the river.</p>
-                </div>
-            </div>
-            
-            <div class="piece-info">
-                <div class="piece-icon">♞</div>
-                <div class="piece-description">
-                    <h3>Horse</h3>
-                    <p>Moves one point horizontally or vertically, then one point diagonally outward (similar to a Knight in chess). Cannot jump over pieces.</p>
-                </div>
-            </div>
-            
-            <div class="piece-info">
-                <div class="piece-icon">♜</div>
-                <div class="piece-description">
-                    <h3>Chariot (Rook)</h3>
-                    <p>Moves any distance horizontally or vertically, but cannot jump over pieces.</p>
-                </div>
-            </div>
-            
-            <div class="piece-info">
-                <div class="piece-icon">♛</div>
-                <div class="piece-description">
-                    <h3>Cannon</h3>
-                    <p>Moves like the Chariot, but must jump over exactly one piece (of either color) to capture. For non-capturing moves, it moves like a Chariot without jumping.</p>
-                </div>
-            </div>
-            
-            <div class="piece-info">
-                <div class="piece-icon">♟</div>
-                <div class="piece-description">
-                    <h3>Soldier (Pawn)</h3>
-                    <p>Moves one point forward. After crossing the river, it can also move one point horizontally. Cannot move backward.</p>
-                </div>
-            </div>
-            
-            <h3>Special Rules</h3>
-            <p><strong>Perpetual Check:</strong> Continuously putting the opponent's General in check is not allowed.</p>
-            <p><strong>Perpetual Chase:</strong> Continuously chasing a piece in a repeating pattern is not allowed.</p>
-            <p><strong>Stalemate:</strong> A player with no legal moves results in a loss (unlike western chess where it's a draw).</p>
         </div>
     </div>
 
@@ -122,10 +110,84 @@
         const instructionsModal = document.getElementById('instructionsModal');
         const closeModalButton = document.querySelector('.close');
         const gameInfoElement = document.getElementById('gameInfo');
+        const notationToggle = document.getElementById('notationToggle');
+
+        // Function to update instruction icons
+        function updateInstructionIcons(useWesternStyle) {
+            const pieceIcons = {
+                western: {
+                    general: '♔',
+                    advisor: '♗',
+                    elephant: '🐘',
+                    horse: '♘',
+                    chariot: '♖',
+                    cannon: '💣',
+                    soldier: '♟'
+                },
+                chinese: {
+                    general: '將',
+                    advisor: '士',
+                    elephant: '象',
+                    horse: '馬',
+                    chariot: '車',
+                    cannon: '砲',
+                    soldier: '卒'
+                }
+            };
+
+            const style = useWesternStyle ? 'western' : 'chinese';
+            
+            document.getElementById('generalIcon').textContent = pieceIcons[style].general;
+            document.getElementById('advisorIcon').textContent = pieceIcons[style].advisor;
+            document.getElementById('elephantIcon').textContent = pieceIcons[style].elephant;
+            document.getElementById('horseIcon').textContent = pieceIcons[style].horse;
+            document.getElementById('chariotIcon').textContent = pieceIcons[style].chariot;
+            document.getElementById('cannonIcon').textContent = pieceIcons[style].cannon;
+            document.getElementById('soldierIcon').textContent = pieceIcons[style].soldier;
+        }
+
+        // Notation toggle
+        window.useChineseCharacters = false;
+        notationToggle.addEventListener('click', () => {
+            window.useChineseCharacters = !window.useChineseCharacters;
+            const isWestern = !window.useChineseCharacters;
+            
+            // Update button text and class
+            notationToggle.textContent = isWestern ? 'Western Style' : 'Chinese Style';
+            notationToggle.className = isWestern ? 'active-western' : 'active-chinese';
+            
+            // Update current style indicator in instructions
+            const currentStyleSpan = document.getElementById('currentStyle');
+            currentStyleSpan.textContent = isWestern ? 'Western Style' : 'Chinese Style';
+            currentStyleSpan.parentElement.className = `current-style ${isWestern ? 'western' : 'chinese'}`;
+            
+            // Update instruction icons
+            updateInstructionIcons(!window.useChineseCharacters);
+            initGame();
+        });
+
+        // Instructions button
+        instructionsButton.addEventListener('click', () => {
+            // Update current style indicator
+            const currentStyleSpan = document.getElementById('currentStyle');
+            const isWestern = !window.useChineseCharacters;
+            currentStyleSpan.textContent = isWestern ? 'Western Style' : 'Chinese Style';
+            currentStyleSpan.parentElement.className = `current-style ${isWestern ? 'western' : 'chinese'}`;
+            
+            // Update instruction icons
+            updateInstructionIcons(!window.useChineseCharacters);
+            instructionsModal.style.display = 'block';
+        });
 
         // Start the game when the page loads
         window.addEventListener('DOMContentLoaded', () => {
-                initGame();
+            initGame();
+            updateInstructionIcons(!window.useChineseCharacters);
+            
+            // Set initial style indicator
+            const currentStyleSpan = document.getElementById('currentStyle');
+            currentStyleSpan.textContent = 'Western Style';
+            currentStyleSpan.parentElement.className = 'current-style western';
         });
     </script>
 </body>
