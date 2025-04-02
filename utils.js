@@ -233,9 +233,60 @@ function movePiece(piece, toX, toY) {
     
     const fromX = parseInt(piece.dataset.x);
     const fromY = parseInt(piece.dataset.y);
+    const pieceColor = piece.dataset.color;
+    const opponentColor = pieceColor === RED ? BLACK : RED;
     
     // Capture any piece at the destination
     const targetPiece = getPieceAtPosition(toX, toY);
+    
+    // Check if a general is being captured
+    if (targetPiece && targetPiece.dataset.type === 'general') {
+        gameOver = true;
+        targetPiece.remove();
+        
+        // Update piece position
+        piece.dataset.x = toX;
+        piece.dataset.y = toY;
+        updatePiecePosition(piece);
+        
+        // Add move to history
+        moveHistory.push({
+            piece: piece.cloneNode(true),
+            fromX,
+            fromY,
+            toX,
+            toY,
+            captured: targetPiece.cloneNode(true)
+        });
+        
+        // Deselect the piece
+        deselectPiece();
+        
+        // Show game over message
+        showGameOverMessage(`${pieceColor === RED ? 'Red' : 'Black'} wins by capturing the general!`);
+        return;
+    }
+    
+    // Check for perpetual moves before making the move
+    const opponentGeneral = document.querySelector(`.piece[data-type="general"][data-color="${opponentColor}"]`);
+    if (opponentGeneral) {
+        const willCheck = isPossibleMove(toX, toY, 
+            parseInt(opponentGeneral.dataset.x),
+            parseInt(opponentGeneral.dataset.y)
+        );
+        
+        const perpetualMoveType = checkPerpetualMoves(piece, fromX, fromY, toX, toY, willCheck);
+        if (perpetualMoveType) {
+            gameOver = true;
+            const gameOverMessage = perpetualMoveType === 'perpetual-check' ?
+                `${pieceColor === RED ? 'Black' : 'Red'} wins! ${pieceColor === RED ? 'Red' : 'Black'} made perpetual checks.` :
+                `${pieceColor === RED ? 'Black' : 'Red'} wins! ${pieceColor === RED ? 'Red' : 'Black'} made perpetual chases.`;
+            
+            showGameOverMessage(gameOverMessage);
+            return;
+        }
+    }
+    
     if (targetPiece) {
         targetPiece.remove();
     }
@@ -258,14 +309,52 @@ function movePiece(piece, toX, toY) {
     // Deselect the piece
     deselectPiece();
     
+    if (gameOver) return;
+    
+    // Check if the move puts the opponent in check or checkmate
+    if (opponentGeneral && isInCheck(opponentColor)) {
+        if (isInCheckmate(opponentColor)) {
+            gameOver = true;
+            showGameOverMessage(`${pieceColor === RED ? 'Red' : 'Black'} wins by checkmate!`);
+            return;
+        } else {
+            updateGameInfo(`${opponentColor === RED ? 'Red' : 'Black'} is in check!`);
+        }
+    } else if (opponentGeneral && isInCheckmate(opponentColor)) {
+        // Stalemate - opponent has no legal moves but is not in check
+        gameOver = true;
+        showGameOverMessage(`${pieceColor === RED ? 'Red' : 'Black'} wins by stalemate!`);
+        return;
+    }
+    
     // Switch turns
     currentPlayer = currentPlayer === RED ? BLACK : RED;
-    updateGameInfo(`${currentPlayer === RED ? "Red" : "Black"}'s Turn`);
+    if (!isInCheck(currentPlayer)) {
+        updateGameInfo(`${currentPlayer === RED ? "Red" : "Black"}'s Turn`);
+    }
     
     // If AI is enabled and it's black's turn, make AI move
-    if (aiEnabled && currentPlayer === BLACK) {
+    if (aiEnabled && currentPlayer === BLACK && !gameOver) {
         makeAIMove();
     }
+}
+
+// Show game over message in modal
+function showGameOverMessage(message) {
+    const gameOverModal = document.getElementById('gameOverModal');
+    const gameOverMessageElement = document.getElementById('gameOverMessage');
+    gameOverMessageElement.textContent = message;
+    gameOverModal.style.display = 'block';
+    
+    // Add event listener to new game button in modal
+    const newGameFromModal = document.getElementById('newGameFromModal');
+    newGameFromModal.onclick = () => {
+        gameOverModal.style.display = 'none';
+        initGame();
+    };
+    
+    // Update game info
+    updateGameInfo(message);
 }
 
 // Undo the last move
@@ -332,7 +421,148 @@ function getAllPossibleMoves(color) {
 
 // Check if a player is in check
 function isInCheck(color) {
-    // For now, just return false
-    // This would need to be implemented with proper chess rules
+    // Find the general's position
+    const general = document.querySelector(`.piece[data-type="general"][data-color="${color}"]`);
+    if (!general) return false;
+    
+    const generalX = parseInt(general.dataset.x);
+    const generalY = parseInt(general.dataset.y);
+    
+    // Check if any opponent's piece can capture the general
+    const opponentColor = color === RED ? BLACK : RED;
+    const opponentPieces = document.querySelectorAll(`.piece[data-color="${opponentColor}"]`);
+    
+    for (const piece of opponentPieces) {
+        const pieceX = parseInt(piece.dataset.x);
+        const pieceY = parseInt(piece.dataset.y);
+        
+        if (isPossibleMove(pieceX, pieceY, generalX, generalY)) {
+            return true;
+        }
+    }
+    
+    // Check for flying general rule
+    const oppositeGeneral = document.querySelector(`.piece[data-type="general"][data-color="${opponentColor}"]`);
+    if (oppositeGeneral) {
+        const oppositeX = parseInt(oppositeGeneral.dataset.x);
+        const oppositeY = parseInt(oppositeGeneral.dataset.y);
+        
+        if (oppositeX === generalX) {
+            // Check if there are any pieces between the generals
+            let minY = Math.min(generalY, oppositeY);
+            let maxY = Math.max(generalY, oppositeY);
+            let hasPieceBetween = false;
+            
+            for (let y = minY + 1; y < maxY; y++) {
+                if (getPieceAtPosition(generalX, y)) {
+                    hasPieceBetween = true;
+                    break;
+                }
+            }
+            
+            if (!hasPieceBetween) {
+                return true;
+            }
+        }
+    }
+    
     return false;
+}
+
+// Check if a player is in checkmate
+function isInCheckmate(color) {
+    if (!isInCheck(color)) return false;
+    
+    // Get all pieces of the current player
+    const pieces = document.querySelectorAll(`.piece[data-color="${color}"]`);
+    
+    // Try every possible move for each piece
+    for (const piece of pieces) {
+        const fromX = parseInt(piece.dataset.x);
+        const fromY = parseInt(piece.dataset.y);
+        
+        for (let toX = 0; toX < BOARD_COLS; toX++) {
+            for (let toY = 0; toY < BOARD_ROWS; toY++) {
+                if (isPossibleMove(fromX, fromY, toX, toY)) {
+                    // Try the move
+                    const targetPiece = getPieceAtPosition(toX, toY);
+                    const originalX = piece.dataset.x;
+                    const originalY = piece.dataset.y;
+                    
+                    // Temporarily move the piece
+                    piece.dataset.x = toX;
+                    piece.dataset.y = toY;
+                    if (targetPiece) {
+                        targetPiece.remove();
+                    }
+                    
+                    // Check if the move gets out of check
+                    const stillInCheck = isInCheck(color);
+                    
+                    // Restore the position
+                    piece.dataset.x = originalX;
+                    piece.dataset.y = originalY;
+                    if (targetPiece) {
+                        boardElement.appendChild(targetPiece);
+                    }
+                    
+                    if (!stillInCheck) {
+                        return false; // Found a legal move
+                    }
+                }
+            }
+        }
+    }
+    
+    return true; // No legal moves found
+}
+
+// Track move repetition for perpetual check/chase detection
+let moveRepetitionCount = {};
+let lastCheckingPiece = null;
+
+// Reset move tracking
+function resetMoveTracking() {
+    moveRepetitionCount = {};
+    lastCheckingPiece = null;
+}
+
+// Check for perpetual moves
+function checkPerpetualMoves(piece, fromX, fromY, toX, toY, isChecking) {
+    const moveKey = `${piece.dataset.type}-${fromX},${fromY}-${toX},${toY}`;
+    moveRepetitionCount[moveKey] = (moveRepetitionCount[moveKey] || 0) + 1;
+    
+    // Check for perpetual check
+    if (isChecking) {
+        if (lastCheckingPiece === piece && moveRepetitionCount[moveKey] >= 3) {
+            return 'perpetual-check';
+        }
+        lastCheckingPiece = piece;
+    }
+    
+    // Check for perpetual chase of unprotected piece
+    if (!isChecking && piece.dataset.type !== 'general' && piece.dataset.type !== 'soldier') {
+        const targetPiece = getPieceAtPosition(toX, toY);
+        if (targetPiece && moveRepetitionCount[moveKey] >= 3) {
+            // Check if target piece is unprotected
+            const targetColor = targetPiece.dataset.color;
+            const protectingPieces = document.querySelectorAll(`.piece[data-color="${targetColor}"]`);
+            let isProtected = false;
+            
+            for (const protector of protectingPieces) {
+                const protectorX = parseInt(protector.dataset.x);
+                const protectorY = parseInt(protector.dataset.y);
+                if (protector !== targetPiece && isPossibleMove(protectorX, protectorY, toX, toY)) {
+                    isProtected = true;
+                    break;
+                }
+            }
+            
+            if (!isProtected) {
+                return 'perpetual-chase';
+            }
+        }
+    }
+    
+    return null;
 } 
