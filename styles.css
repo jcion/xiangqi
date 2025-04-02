@@ -43,7 +43,7 @@ body {
     justify-content: center;
     cursor: pointer;
     user-select: none;
-    transition: transform 0.2s;
+    transition: all 0.2s;
     z-index: 1;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
@@ -67,6 +67,20 @@ body {
     color: #000;
     border-color: #000;
     background-color: #f0f0f0;
+}
+
+.piece.capturable {
+    background-color: #ffcdd2;
+    box-shadow: 0 0 8px rgba(244,67,54,0.5);
+}
+
+/* Keep border colors when capturable */
+.piece.red.capturable {
+    border-color: #d32f2f;
+}
+
+.piece.black.capturable {
+    border-color: #000;
 }
 
 .horizontal-line {
@@ -119,13 +133,18 @@ body {
     border-radius: 50%;
     cursor: pointer;
     z-index: 0;
+    transition: transform 0.2s;
+}
+
+.move-highlight:hover {
+    transform: scale(1.2);
 }
 
 .move-highlight.capture-highlight {
-    background-color: rgba(244,67,54,0.5);
+    background-color: rgba(244,67,54,0.7);
     width: calc(var(--grid-size) * 0.4);
     height: calc(var(--grid-size) * 0.4);
-    border: 2px solid rgba(244,67,54,0.7);
+    border: 2px solid #d32f2f;
 }
 
 .valid-move {

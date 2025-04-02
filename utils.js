@@ -185,6 +185,9 @@ function showPossibleMoves(piece) {
     const pieceType = piece.dataset.type;
     const pieceColor = piece.dataset.color;
     
+    // Remove any existing capturable highlights
+    document.querySelectorAll('.piece.capturable').forEach(p => p.classList.remove('capturable'));
+    
     // Check all possible positions based on piece type
     for (let toX = 0; toX < BOARD_COLS; toX++) {
         for (let toY = 0; toY < BOARD_ROWS; toY++) {
@@ -202,9 +205,10 @@ function showPossibleMoves(piece) {
                     movePiece(selectedPiece, toX, toY);
                 });
                 
-                // If there's a piece that can be captured, add visual indicator
+                // If there's a piece that can be captured, highlight it
                 const targetPiece = getPieceAtPosition(toX, toY);
                 if (targetPiece && targetPiece.dataset.color !== pieceColor) {
+                    targetPiece.classList.add('capturable');
                     highlight.classList.add('capture-highlight');
                 }
                 
@@ -214,10 +218,13 @@ function showPossibleMoves(piece) {
     }
 }
 
-// Remove all possible move highlights
+// Remove all possible move highlights and capturable indicators
 function removePossibleMoves() {
     const highlights = document.querySelectorAll('.move-highlight');
     highlights.forEach(highlight => highlight.remove());
+    
+    // Remove capturable highlights from pieces
+    document.querySelectorAll('.piece.capturable').forEach(piece => piece.classList.remove('capturable'));
 }
 
 // Move a piece to a new position
