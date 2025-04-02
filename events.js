@@ -46,43 +46,51 @@ function handlePieceClick(event) {
     }
 }
 
-// Event listeners
-newGameButton.addEventListener('click', () => {
-    try {
-        initGame();
-    } catch (error) {
-        console.error("Error starting new game:", error);
-        alert("Error starting new game. Please reload the page.");
-    }
-});
+// Set up event listeners when DOM is fully loaded
+document.addEventListener('DOMContentLoaded', () => {
+    const newGameButton = document.getElementById('newGame');
+    const undoMoveButton = document.getElementById('undoMove');
+    const aiToggleButton = document.getElementById('aiToggle');
+    const instructionsButton = document.getElementById('instructionsBtn');
+    const instructionsModal = document.getElementById('instructionsModal');
+    const closeModalButton = document.querySelector('.close');
 
-undoMoveButton.addEventListener('click', () => {
-    try {
-        undoLastMove();
-    } catch (error) {
-        console.error("Error undoing move:", error);
-    }
-});
+    newGameButton.addEventListener('click', () => {
+        try {
+            initGame();
+        } catch (error) {
+            console.error("Error starting new game:", error);
+            alert("Error starting new game. Please reload the page.");
+        }
+    });
 
-aiToggleButton.addEventListener('click', () => {
-    try {
-        toggleAI();
-    } catch (error) {
-        console.error("Error toggling AI:", error);
-    }
-});
+    undoMoveButton.addEventListener('click', () => {
+        try {
+            undoLastMove();
+        } catch (error) {
+            console.error("Error undoing move:", error);
+        }
+    });
 
-instructionsButton.addEventListener('click', () => {
-    instructionsModal.style.display = 'block';
-});
+    aiToggleButton.addEventListener('click', () => {
+        try {
+            toggleAI();
+        } catch (error) {
+            console.error("Error toggling AI:", error);
+        }
+    });
 
-closeModalButton.addEventListener('click', () => {
-    instructionsModal.style.display = 'none';
-});
+    instructionsButton.addEventListener('click', () => {
+        instructionsModal.style.display = 'block';
+    });
 
-// Close the modal when clicking outside of it
-window.addEventListener('click', (event) => {
-    if (event.target === instructionsModal) {
+    closeModalButton.addEventListener('click', () => {
         instructionsModal.style.display = 'none';
-    }
+    });
+
+    window.addEventListener('click', (event) => {
+        if (event.target === instructionsModal) {
+            instructionsModal.style.display = 'none';
+        }
+    });
 }); 
