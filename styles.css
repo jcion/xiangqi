@@ -1,0 +1,239 @@
+/* CSS styles for Xiangqi game */
+:root {
+    --grid-size: 60px;
+    --piece-size: calc(var(--grid-size) * 0.85);
+    --board-width: calc(var(--grid-size) * 8);
+    --board-height: calc(var(--grid-size) * 9);
+}
+
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 20px;
+}
+
+.game-container {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.board {
+    position: relative;
+    width: var(--board-width);
+    height: var(--board-height);
+    background-color: #f8d7a3;
+    border: 2px solid #8b4513;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+
+.piece {
+    position: absolute;
+    width: var(--piece-size);
+    height: var(--piece-size);
+    background-color: #fff;
+    border: 2px solid #000;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.2s;
+    z-index: 1;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.piece:hover {
+    transform: scale(1.1);
+}
+
+.piece.selected {
+    background-color: #ffeb3b;
+    box-shadow: 0 0 10px rgba(255,235,59,0.5);
+}
+
+.piece.red {
+    color: #d32f2f;
+    border-color: #d32f2f;
+    background-color: #fff2f2;
+}
+
+.piece.black {
+    color: #000;
+    border-color: #000;
+    background-color: #f0f0f0;
+}
+
+.horizontal-line {
+    position: absolute;
+    width: 100%;
+    height: 1px;
+    background-color: #000;
+    z-index: 1;
+}
+
+.vertical-line {
+    position: absolute;
+    width: 1px;
+    background-color: #000;
+    z-index: 1;
+}
+
+.river {
+    position: absolute;
+    top: 45%;
+    left: 0;
+    width: 100%;
+    height: 10%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #8b4513;
+    font-size: calc(var(--grid-size) * 0.3);
+    pointer-events: none;
+}
+
+.river-text {
+    padding: 0 10px;
+}
+
+.point-mark {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background-color: #000;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.move-highlight {
+    position: absolute;
+    width: calc(var(--grid-size) * 0.3);
+    height: calc(var(--grid-size) * 0.3);
+    background-color: rgba(76,175,80,0.5);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 0;
+}
+
+.move-highlight.capture-highlight {
+    background-color: rgba(244,67,54,0.5);
+    width: calc(var(--grid-size) * 0.4);
+    height: calc(var(--grid-size) * 0.4);
+    border: 2px solid rgba(244,67,54,0.7);
+}
+
+.valid-move {
+    box-shadow: 0 0 0 3px rgba(244,67,54,0.7);
+}
+
+.controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+button.active {
+    background-color: #2196f3;
+}
+
+.game-info {
+    margin-top: 20px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 10;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7);
+}
+
+.modal-content {
+    background-color: #f8f8f8;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 800px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: #333;
+}
+
+.piece-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+.piece-info:last-child {
+    border-bottom: none;
+}
+
+.piece-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    font-size: 24px;
+}
+
+.piece-description {
+    flex: 1;
+}
+
+.piece-description h3 {
+    margin-top: 0;
+    margin-bottom: 8px;
+}
+
+.piece-description p {
+    margin: 0;
+    line-height: 1.4;
+} 
